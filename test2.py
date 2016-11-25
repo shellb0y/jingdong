@@ -1,4 +1,3 @@
 import binascii
 
-
-print ord('1')
+print ord('h')

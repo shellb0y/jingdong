@@ -2,7 +2,6 @@ import ctypes
 import hashlib
 import ctypes
 import base64
-import binascii
 
 d_encrypt = ctypes.windll.LoadLibrary( 'libs/login.dll' )
 KEY = "47 44 50 64 46 53 61 6D 74 61 6B 53 67 78 52 64"
@@ -40,7 +39,21 @@ class Login:
         req_data_array = map(lambda x: int(x, 16), req_data.split(' '))
         return  base64.b64encode(bytearray(req_data_array))
 
+    def to_hex_str(self,s):
+        byte = str(hex(ord(s))).replace('0x', '')
+        if len(byte) == 1:
+            byte = '0' + byte
+        return byte
+
     def get_resp_data(self,resp_data):
+        resp_data_array = map(self.to_hex_str, base64.b64decode(resp_data))
+        resp_data_hex = ' '.join(resp_data_array)
+        decrypt_addr = d_encrypt.TeaDecrypt(KEY, resp_data_hex)
+        decrypt_p = ctypes.c_char_p(decrypt_addr)
+
+        return decrypt_p.value.replace(' ','')
+
+    def get_cookie(self,resp_data):
         pass
 
 login = Login('jd_60aaf2f598861', 'e4e333')
@@ -48,5 +61,8 @@ req_data = login.get_req_data()
 print  req_data
 
 resp = 'aHLnhbKM9oBtKHz0nVBtCtRI5vdKL0kEJSj85AR8sXiImjeOMj8xF+UhTWTXBgO4XV2QitZNleNzLP34rB0uAFK09+lzAsyuAhgCwXGz5YwkQ4hpnbx8vqwX1ZGaRkE590kX4nsrDFtOFqNklC1FStEKZBNQNrTd1J1hlDqudi7sxmZgh48TLno39B+dPuhP7PpKIkO9JAdoHP9KuVyoWA=='
-data= bytearray(base64.b64decode(resp))
-print data
+resp_data = login.get_resp_data(resp)
+print resp_data.substring('c00010')
+
+
+
