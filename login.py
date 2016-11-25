@@ -3,7 +3,7 @@ import hashlib
 import ctypes
 import base64
 
-d_encrypt = ctypes.windll.LoadLibrary( 'libs/login.dll' )
+d_encrypt = ctypes.windll.LoadLibrary('libs/login.dll')
 KEY = "47 44 50 64 46 53 61 6D 74 61 6B 53 67 78 52 64"
 
 class Login:
@@ -37,7 +37,7 @@ class Login:
 
         req_data = KEY + ' ' +  encrypt_p.value
         req_data_array = map(lambda x: int(x, 16), req_data.split(' '))
-        return  base64.b64encode(bytearray(req_data_array))
+        return base64.b64encode(bytearray(req_data_array))
 
     def to_hex_str(self,s):
         byte = str(hex(ord(s))).replace('0x', '')
@@ -63,6 +63,3 @@ print  req_data
 resp = 'aHLnhbKM9oBtKHz0nVBtCtRI5vdKL0kEJSj85AR8sXiImjeOMj8xF+UhTWTXBgO4XV2QitZNleNzLP34rB0uAFK09+lzAsyuAhgCwXGz5YwkQ4hpnbx8vqwX1ZGaRkE590kX4nsrDFtOFqNklC1FStEKZBNQNrTd1J1hlDqudi7sxmZgh48TLno39B+dPuhP7PpKIkO9JAdoHP9KuVyoWA=='
 resp_data = login.get_resp_data(resp)
 print resp_data.substring('c00010')
-
-
-
