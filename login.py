@@ -1,13 +1,21 @@
 import ctypes
 import hashlib
+import ctypes
+import base64
+import binascii
 
+d_encrypt = ctypes.windll.LoadLibrary( 'libs/login.dll' )
+KEY = "47 44 50 64 46 53 61 6D 74 61 6B 53 67 78 52 64"
 
 class Login:
     def __init__(self, username, password):
         self.username = username
         self.password = password
 
-    def getReqData(self,cmd1,cmd2):
+    def hex_format_space(self,data):
+        return ' '.join(data[i:i+2] for i in range(0, len(data), 2))
+
+    def get_req_data(self,cmd1=2,cmd2=6):
         jd_uuid = '867323020350896-a086c68dae09'
         account = '00%s%s0020%s' % (hex(len(self.username)).replace('0x',''), self.username.encode('hex'), str(
             hashlib.md5(self.password).hexdigest().encode('hex')))
@@ -25,26 +33,20 @@ class Login:
         else:
             data = data.replace('Y',length[0]).replace('XX',length[1:3])
 
-        print data
+        encrypt_addr = d_encrypt.Teaencryption(KEY, data)
+        encrypt_p = ctypes.c_char_p(encrypt_addr)
 
+        req_data = KEY + ' ' +  encrypt_p.value
+        req_data_array = map(lambda x: int(x, 16), req_data.split(' '))
+        return  base64.b64encode(bytearray(req_data_array))
 
-def encipher(v, k):
-    y = ctypes.c_int32(v[0])
-    z = ctypes.c_int32(v[1])
-    sum = ctypes.c_int32(0)
-    delta = 0x61c88647
-    n = 16
-    w = [0, 0]
+    def get_resp_data(self,resp_data):
+        pass
 
-    while n > 0:
-        y.value += z.value << 4 ^ z.value >> 5 + sum.value ^ z.value + k[sum.value & 3]
-        sum.value -= delta
-        z.value += y.value << 4 ^ y.value >> 5 + sum.value ^ y.value + k[sum.value >> 11 & 3]
-        n -= 1
+login = Login('jd_60aaf2f598861', 'e4e333')
+req_data = login.get_req_data()
+print  req_data
 
-    w[0] = y.value
-    w[1] = z.value
-    return w
-
-login = Login('zt.freedom@gmail.com', '000000')
-print login.getReqData(2,6)
+resp = 'aHLnhbKM9oBtKHz0nVBtCtRI5vdKL0kEJSj85AR8sXiImjeOMj8xF+UhTWTXBgO4XV2QitZNleNzLP34rB0uAFK09+lzAsyuAhgCwXGz5YwkQ4hpnbx8vqwX1ZGaRkE590kX4nsrDFtOFqNklC1FStEKZBNQNrTd1J1hlDqudi7sxmZgh48TLno39B+dPuhP7PpKIkO9JAdoHP9KuVyoWA=='
+data= bytearray(base64.b64decode(resp))
+print data
