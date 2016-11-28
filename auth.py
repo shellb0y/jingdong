@@ -2,23 +2,42 @@ import ctypes
 import hashlib
 import ctypes
 import base64
+import time
+import base_data
+import sys
 
-d_encrypt_dll = ctypes.windll.LoadLibrary( 'libs/login.dll' )
+d_encrypt_dll = ctypes.windll.LoadLibrary('C:\Users\ztfre\PycharmProjects\jingdong\libs\login.dll')
+sign_dll = ctypes.windll.LoadLibrary('C:\Users\ztfre\PycharmProjects\jingdong\libs\sign.dll')
 KEY = "47 44 50 64 46 53 61 6D 74 61 6B 53 67 78 52 64"
+
+
+def sign(function_id, uuid, body):
+    st = str(int(round(time.time() * 1000)))
+    data = 'functionId=%s&body=%s&uuid=%s&client=android&clientVersion=5.3.0'%(function_id,body,uuid)
+    # print sys.getsizeof(data)
+    data_len = len(data) + 17
+    mod = data_len % 8
+    if mod > 0:
+        st = st[:len(st) - mod] + '6583619'[-mod:]
+    sign_data_addr = sign_dll.jd_sign(function_id, uuid, body, st)
+    sign_data_p = ctypes.c_char_p(sign_data_addr)
+    return (sign_data_p.value,st)
+
 
 def hex_format_space(data):
     return ' '.join(data[i:i + 2] for i in range(0, len(data), 2))
 
-def get_req_data(username,password, cmd1=2, cmd2=6):
-    jd_uuid = '867323020350896-a086c68dae09'
+
+def get_req_data(username, password, jd_uuid, cmd1=2, cmd2=6):
+    # jd_uuid = '867323020350896-a086c68dae09'
     account = '00%s%s0020%s' % (hex(len(username)).replace('0x', ''), username.encode('hex'), str(
         hashlib.md5(password).hexdigest().encode('hex')))
     account = '000200' + hex(len(account) / 2).replace('0x', '') + account
     device_finger_print = '00040034' + (
-    '000a0001000402020020' + hashlib.md5('a086c68dae09###ss').hexdigest().upper()).encode('hex')
+        '000a0001000402020020' + hashlib.md5('a086c68dae09###ss').hexdigest().upper()).encode('hex')
     device = '0008005d000200640007616e64726f69640005342e342e320005352e312e300008313238302a37323000056a64617070000' \
              '4776966690000001c%s000000010005312e342e320048001100036e6f7800034d693400034d49340000' % (
-             jd_uuid.encode('hex'))
+                 jd_uuid.encode('hex'))
     header = '0YXX0000000000000001000000010000000100000000000%d000%d0064011100' % (cmd1, cmd2)
 
     data = (header + account + device_finger_print + device).upper()
@@ -52,7 +71,11 @@ def get_resp_data(resp_data):
 
     return decrypt_p.value.replace(' ', '')
 
+
 def get_cookie(resp_data):
+    resp_data = get_resp_data(resp_data)
+    print resp_data
+
     pin_index = resp_data.find('C00010') + 10
     if pin_index == 1:
         print 'NOT FOUND'
@@ -62,12 +85,12 @@ def get_cookie(resp_data):
     whwswswws = ''
     wssl_start = resp_data.find('1100003700')
     if wssl_start == -1:
-        print 'whwswswws start index not found'
+        raise ValueError('whwswswws start index not found')
     else:
         wssl_stop = resp_data.find('000A0048')
         if wssl_stop == -1:
             wssl_stop = resp_data.find('000A0058')
-            print 'whwswswws stop index not found'
+            raise ValueError('whwswswws stop index not found')
         else:
             whwswswws = resp_data[wssl_start + 10:wssl_stop]
 
@@ -90,13 +113,15 @@ def get_cookie(resp_data):
     wskey = base64.b64encode(bytearray(wskey_array)).replace('+', '-').replace('==', '').replace('/', '_')
     return 'pin=%s; wskey=%s; whwswswws=%s' % (pin, wskey, whwswswws)
 
-if __name__=="__main__":
-    req_data = get_req_data('jd_60aaf2f598861', 'e4e333')
+
+if __name__ == "__main__":
+    req_data = get_req_data('jd_60aaf2f598861', 'e4e333', '')
     print  req_data
 
     resp = 'aHLnhbKM9oBtKHz0nVBtCtRI5vdKL0kEJSj85AR8sXiImjeOMj8xF+UhTWTXBgO4XV2QitZNleNzLP34rB0uAFK09+lzAsyuAhgCwXGz5YwkQ4hpnbx8vqwX1ZGaRkE590kX4nsrDFtOFqNklC1FStEKZBNQNrTd1J1hlDqudi7sxmZgh48TLno39B+dPuhP7PpKIkO9JAdoHP9KuVyoWA=='
-    resp_data = get_resp_data(resp)
-    cookie = get_cookie(resp_data)
+    cookie = get_cookie(resp)
     print  cookie
 
-
+    sign_data = sign('newUserInfo', base_data.get_random_number() + '-' + base_data.get_random_letter_number(12),
+                     '{"flag":"nickname"}')
+    print sign_data
