@@ -4,7 +4,6 @@ import ctypes
 import base64
 import time
 import base_data
-import sys
 
 d_encrypt_dll = ctypes.windll.LoadLibrary('C:\Users\ztfre\PycharmProjects\jingdong\libs\login.dll')
 sign_dll = ctypes.windll.LoadLibrary('C:\Users\ztfre\PycharmProjects\jingdong\libs\sign.dll')
@@ -13,7 +12,7 @@ KEY = "47 44 50 64 46 53 61 6D 74 61 6B 53 67 78 52 64"
 
 def sign(function_id, uuid, body):
     st = str(int(round(time.time() * 1000)))
-    data = 'functionId=%s&body=%s&uuid=%s&client=android&clientVersion=5.3.0'%(function_id,body,uuid)
+    data = 'functionId=%s&body=%s&uuid=%s&client=android&clientVersion=5.3.0' % (function_id, body, uuid)
     # print sys.getsizeof(data)
     data_len = len(data) + 17
     mod = data_len % 8
@@ -21,7 +20,7 @@ def sign(function_id, uuid, body):
         st = st[:len(st) - mod] + '6583619'[-mod:]
     sign_data_addr = sign_dll.jd_sign(function_id, uuid, body, st)
     sign_data_p = ctypes.c_char_p(sign_data_addr)
-    return (sign_data_p.value,st)
+    return (sign_data_p.value, st)
 
 
 def hex_format_space(data):
@@ -30,8 +29,12 @@ def hex_format_space(data):
 
 def get_req_data(username, password, jd_uuid, cmd1=2, cmd2=6):
     # jd_uuid = '867323020350896-a086c68dae09'
-    account = '00%s%s0020%s' % (hex(len(username)).replace('0x', ''), username.encode('hex'), str(
+    username_len = hex(len(username)).replace('0x', '')
+    if len(username_len) == 1:
+        username_len = '0' + username_len
+    account = '00%s%s0020%s' % (username_len, username.encode('hex'), str(
         hashlib.md5(password).hexdigest().encode('hex')))
+
     account = '000200' + hex(len(account) / 2).replace('0x', '') + account
     device_finger_print = '00040034' + (
         '000a0001000402020020' + hashlib.md5('a086c68dae09###ss').hexdigest().upper()).encode('hex')
@@ -78,7 +81,7 @@ def get_cookie(resp_data):
 
     pin_index = resp_data.find('C00010') + 10
     if pin_index == 1:
-        print 'NOT FOUND'
+        raise ValueError('NOT FOUND')
     pin_hex = resp_data[pin_index:]
     pin = ''.join(map(lambda x: chr(int(x, 16)), hex_format_space(pin_hex).split(' ')))
 
