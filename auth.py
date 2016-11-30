@@ -4,9 +4,16 @@ import ctypes
 import base64
 import time
 import base_data
+import os
 
-d_encrypt_dll = ctypes.windll.LoadLibrary('C:\Users\ztfre\PycharmProjects\jingdong\libs\login.dll')
-sign_dll = ctypes.windll.LoadLibrary('C:\Users\ztfre\PycharmProjects\jingdong\libs\sign.dll')
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+login_dll_path = os.path.normpath(os.path.join(root_path, 'libs/login.dll'))
+sign_dll_path = os.path.normpath(os.path.join(root_path, 'libs/sign.dll'))
+
+# print login_dll_path,sign_dll_path
+
+d_encrypt_dll = ctypes.windll.LoadLibrary(login_dll_path)
+sign_dll = ctypes.windll.LoadLibrary(sign_dll_path)
 KEY = "47 44 50 64 46 53 61 6D 74 61 6B 53 67 78 52 64"
 
 
@@ -89,15 +96,18 @@ def get_cookie(resp_data):
     wssl_start = resp_data.find('1100003700')
     if wssl_start == -1:
         raise ValueError('whwswswws start index not found')
+        # print 'whwswswws start index not found'
     else:
         wssl_stop = resp_data.find('000A0048')
         if wssl_stop == -1:
             wssl_stop = resp_data.find('000A0058')
             raise ValueError('whwswswws stop index not found')
+            # print 'whwswswws start index not found'
         else:
             whwswswws = resp_data[wssl_start + 10:wssl_stop]
 
-    whwswswws = ''.join(map(lambda x: chr(int(x, 16)), hex_format_space(whwswswws).split(' ')))
+    if whwswswws:
+        whwswswws = ''.join(map(lambda x: chr(int(x, 16)), hex_format_space(whwswswws).split(' ')))
 
     wskey_hex = ''
     wskey_start = resp_data.find('000A0048')

@@ -21,14 +21,16 @@
 # sign = test('newUserInfo', 'dsfdsfdsfdsfdsfds', '{"flag":"nickname"}', pStr)
 # print st.value
 # print sign
-import traceback
-def test():
-    try:
-        raise Exception('test')
-    except Exception,e:
-        raise Exception('test2',e)
 
-try:
-    test()
-except Exception,e:
-    print traceback.format_exc()
+# a='cheCi=G5&seatType=edz&seatPrice=55300&fromStationCode=VNP&fromStationName=%E5%8C%97%E4%BA%AC%E5%8D%97&toStationCode=AOH&toStationName=%E4%B8%8A%E6%B5%B7%E8%99%B9%E6%A1%A5&trainDate=1480435200000&passengerIds=1204607&contact=%E5%90%B4%E5%8B%87%E5%88%9A&phone=13978632546&realBook=1&account=&password='
+# a_ = a.split('&')
+# data = {}
+# for t in a_:
+#     _t = t.split('=')
+#     data[_t[0]]=_t[1]
+#
+# print data
+
+a=[1,23,4]
+a.append(6)
+print a
