@@ -5,6 +5,7 @@ import json
 import requests
 import urllib
 import time
+import log_ex as logger
 
 
 class Order:
@@ -34,11 +35,17 @@ class Order:
         p_ids = []
         for p in passenger:
             data = 'contactName=%s&idCardType=1&idCardInfo=%s' % (
-            urllib.quote_plus(p['name'].encode('utf-8')), p['IDCard'])
+                urllib.quote_plus(p['name'].encode('utf-8')), p['IDCard'])
+
+            logger.debug('POST %s \n%s' % (url, data))
             resp = requests.post(url, data=data, headers=self.headers, verify=False)
+
+            logger.debug('resp %s' % resp.text)
             resp_body = resp.json()
             if resp_body['success']:
                 p_ids.append(resp_body['passengerId'])
+            else:
+                raise Exception('add passenger error')
 
         return p_ids
 
@@ -67,10 +74,12 @@ class Order:
                 'fromStationCode': train['data']['ticketsInfo'][0]['dptStation'],
                 'cheCi': train['data']['ticketsInfo'][0]['coachNo']}
 
+        data = urllib.urlencode(data)
+        logger.debug('POST %s \n%s' % (url, data))
         # data = 'cheCi=G5&seatType=edz&seatPrice=55300&fromStationCode=VNP&fromStationName=%E5%8C%97%E4%BA%AC%E5%8D%97&toStationCode=AOH&toStationName=%E4%B8%8A%E6%B5%B7%E8%99%B9%E6%A1%A5&trainDate=1480435200000&passengerIds=1204607&contact=%E5%90%B4%E5%8B%87%E5%88%9A&phone=13978632546&realBook=1&account=&password='
-        resp = requests.post(url, data=urllib.urlencode(data), headers=self.headers)
+        resp = requests.post(url, data=data, headers=self.headers)
+        logger.debug('resp %s' % resp.text)
         resp_body = resp.json()
-        print resp_body
 
         orderid = resp_body['orderId']
         data['orderid'] = orderid
@@ -81,8 +90,11 @@ class Order:
         url = 'https://train.m.jd.com/bookSeat/book/s_%s_%s_%s_%s_%s_%s_%s' % (
             data['trainDate'], urllib.quote_plus(data['fromStationName']), data['fromStationCode'],
             urllib.quote_plus(data['toStationName']), data['toStationCode'], data['cheCi'], data['seatType'])
+
+        logger.debug('GET %s' % url)
         resp = requests.get(url, headers=self.headers, verify=False)
         resp_body = resp.text
+        logger.debug('resp:%s', resp_body)
 
         token = re.findall(r'<input type="hidden" name="token" value="(\w+)" />', resp_body)
         if token:
@@ -97,6 +109,8 @@ class Order:
         url = 'https://train.m.jd.com/bookSeat/submitOrder.action'
         data = 'token=%s&token2=%s&orderId=%s&totalFee=%d&pwd=&payTypes=&couponIds=%s&couponFee=%s' % (
             data['token'], data['token'], data['orderid'], data['seatPrice'], data['couponid'], data['couponPrice'])
+
+        logger.debug('POST %s\n%s' % (url, data))
         req = requests.post(url, data=data, headers=self.headers, verify=False)
         resp = req.text
-        print resp
+        logger.debug('resp:%s' % resp)

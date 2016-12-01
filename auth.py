@@ -84,8 +84,6 @@ def get_resp_data(resp_data):
 
 def get_cookie(resp_data):
     resp_data = get_resp_data(resp_data)
-    print resp_data
-
     pin_index = resp_data.find('C00010') + 10
     if pin_index == 1:
         raise ValueError('NOT FOUND')
@@ -106,7 +104,7 @@ def get_cookie(resp_data):
         else:
             whwswswws = resp_data[wssl_start + 10:wssl_stop]
 
-    if whwswswws:
+    if whwswswws and whwswswws != '00':
         whwswswws = ''.join(map(lambda x: chr(int(x, 16)), hex_format_space(whwswswws).split(' ')))
 
     wskey_hex = ''

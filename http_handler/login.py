@@ -33,7 +33,8 @@ class Login:
         sign = auth.sign('genToken', self.uuid, json.dumps(body))
         url = 'http://api.m.jd.com/client.action?functionId=genToken&clientVersion=5.3.0&build=36639&client=android&d_brand=ZTE&d_model=SCH-I779&osVersion=4.4.2&screen=1280*720&partner=tencent&uuid=%s&area=1_2802_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
             self.uuid, sign[1], sign[0])
-        print url
+
+        logger.debug('POST %s' % url)
 
         headers = {
             'Charset': 'UTF-8',
@@ -43,13 +44,15 @@ class Login:
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
 
         resp = requests.post(url, data='body=' + urllib.quote(json.dumps(body)) + '&', headers=headers)
-        print resp.text
+        logger.debug('resp:%s' % resp.text)
 
         resp_body = resp.json()
         # {"code":"0","tokenKey":"AAEAMKMEfWAYh1fRAvE0siwbJrEjuCmaht3Of-dkAaMMpGzemdi7WsCeMn3EaUdejhCZvQ0","url":"http://un.m.jd.com/cgi-bin/app/appjmp"}
 
         url = 'http://un.m.jd.com/cgi-bin/app/appjmp?tokenKey=' + resp_body[
             'tokenKey'] + '&to=https%3A%2F%2Ftrain.m.jd.com&lbs='
+
+        logger.debug('GET:%s' % url)
         session = requests.session()
         resp = session.get(url, headers={
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
