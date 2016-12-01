@@ -56,6 +56,6 @@ class Login:
         session = requests.session()
         resp = session.get(url, headers={
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'User-Agent': self.user_agent})
+            'User-Agent': self.user_agent}, verify=False)
 
         return session.cookies.get_dict()

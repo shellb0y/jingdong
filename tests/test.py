@@ -30,7 +30,14 @@
 #     data[_t[0]]=_t[1]
 #
 # print data
+import re
 
-a=[1,23,4]
-a.append(6)
-print a
+file_object = open('order_submit_response')
+try:
+     all_the_text = file_object.read( )
+     onlinePayFee = re.findall(r'<input type="hidden" name="onlinePayFee" value="(.*)"/>', all_the_text)
+
+     print onlinePayFee
+finally:
+     file_object.close( )
+

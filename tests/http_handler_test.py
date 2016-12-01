@@ -83,3 +83,12 @@ class httpHandlerTest(unittest.TestCase):
         order_data['couponPrice'] = couponPrice
 
         order.submit(order_data)
+
+    def test_get_order_details(self):
+        cookie = {'mobilev': 'touch',
+                  'pt_key': 'app_openAAFYP4yaADCYJ7Pb_2BuI-EDKqKgFMaVygFFLlylRVUPVssKQy5Ee0pDm4QQ0qOTx15duxGCjyw',
+                  'pwdt_id': 'jd_6c83b7ced8f82', 'sid': '80e6a4c9b38d29d0e5b512511700694w',
+                  'guid': 'fa4e006bb1d73e8b5bdebf0ceef24d352abd911c16f95e3056a457b3f774ad9f',
+                  'pt_pin': 'jd_6c83b7ced8f82'}
+        order = http_handler.order.Order(self.uuid, self.user_agent, cookie)
+        print order.get_details(1252297)

@@ -1,257 +1,244 @@
-<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd"> 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 	<head>
+
     <meta charset="utf-8">
+
 	<meta name="author" content="m.jd.com">
+
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
 	<Meta http-equiv="Expires" Content="Wed, 26 Feb 1997 09:21:57 GMT">
+
 	<meta http-equiv="Last-Modified" content="Wed, 26 Feb 1997 09:21:57 GMT">
-	<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate,max-age=0,post-check=0, pre-check=0,false">
+
+	<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate,max-age=0,post-check=0, pre-check=0,false">   
+
     <meta http-equiv="Pragma"  CONTENT="no-cache">
+
 			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-        <title>订单填写</title>
+
+        <title>订单详情</title>
+
     <meta name="format-detection" content="telephone=no" />
+
     <meta name="apple-mobile-web-app-capable" content="yes">
+
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
     <link href="/js/jquery.toast/jquery.toast.min.css" rel="stylesheet" type="text/css" />
+
 	<link href="/css/animate.css" rel="stylesheet" type="text/css" />
+
 	<link href="/skin/jd-ticket.css" rel="stylesheet" type="text/css" />
+
 	<link href="/skin/jd-ticket-phase.css" rel="stylesheet" type="text/css" />
+
 	<link href="/skin/jd-ticket-12306.css" rel="stylesheet" type="text/css" />
+
 	<link rel="stylesheet" type="text/css" href="//st.360buyimg.com/common/commonH_B/css/header.css" charset="utf-8"/>
 
+
+
     <script type="text/javascript" src="/js/jquery-1.11.1.min.js"></script>
+
 	<script type="text/javascript" src="/js/jquery.tap.min.js"></script>
-	<!--
+
+	<!-- 
+
     <script type="text/javascript" src="/js/zepto.min.js"></script>
+
 	-->
+
 	<script type="text/javascript" src="/js/jquery.toast/jquery.toast.min.js"></script>
+
     <script type="text/javascript" src="/js/min_js/common.js?v=20161114"></script>
+
 </head> <body>
 
-<link rel="stylesheet" type="text/css" href="/skin/mobileSelect.css">
-<link rel="stylesheet" type="text/css" href="/skin/coupon.css">
+	
+
 <link rel="stylesheet" type="text/css" href="/skin/simplepop.css">
-<link rel="stylesheet" type="text/css" href="/skin/popup.css">
 
 
-<!-- 隐藏域start -->
-<input type="hidden" name="ticket" value='{"saleDateTime":"1230","canBuyNow":"Y","arriveDays":0,"trainStartDate":"2016-11-30","trainCode":"G5","accessByIdcard":"Y","trainNo":"24000000G502","fromStationName":"北京南","fromStationCode":"VNP","toStationName":"上海虹桥","toStationCode":"AOH","startStationName":"北京南","endStationName":"上海虹桥","startTime":"07:00","arriveTime":"11:55","runTime":"04:55","runTimeMinute":"295","siteList":[{"name":"商务座","type":"swz","num":"4","price":"1748.0"},{"name":"二等座","type":"edz","num":"202","price":"553.0"},{"name":"一等座","type":"ydz","num":"0","price":"933.0"}]}' />
 
-<input type="hidden" name="trainDate" value="1480435200000" >
-<input type="hidden" name="fromStation" value="&#x5317;&#x4eac;" >
-<input type="hidden" name="fromStationCode" value="BJP" >
-<input type="hidden" name="toStation" value="&#x4e0a;&#x6d77;" >
-<input type="hidden" name="toStationCode" value="SHH" >
-<input type="hidden" name="trainCode" value="G5" >
-<input type="hidden" name="trainSite" value="edz" >
-<input type="hidden" name="systemRunLevel" value="0" >
-<input type="hidden" name="account" value="" >
-<input type="hidden" name="accountSlogan" value="" >
-<input type="hidden" name="accountIcon" value="" >
-<!-- 隐藏域end -->
+<input type="hidden" name="orderId" value="1315704" />
 
-<div id="orderPage" class="common-wrapper subpage">
-	<ul class="jd-detail-wrapper">
-        <li class="jd-detail-ticket">
-        	<div class="jd-ticket-flex" id="trainTrip">
-            </div>
-            <div class="jd-detail-fotter"><span id="stationThrough" class="c-68 f-s-22"><i class="bg-ico ico-look"></i>查看停靠信息</span></div>
-        </li>
-    </ul>
+<input type="hidden" name="erpOrderId" value="46059276142" />
 
-    <!--二期start-->
-    <ul class="jd-detail-wrapper">
-        <li class="jd-detail-ticket info-phase-wrapper">
-			<span id="prompt" class="info-head"></span>
-			<div id="siteList" class="info-con">
-			</div>
-        </li>
-    </ul>
-    <!--二期end-->
+<input type="hidden" name="trainDate" value="1482341820000"/>
 
-	<!-- 绑定12306账号 -->
-		<div id="12306" class="jd-ticket-12306">
-	</div>
+<input type="hidden" name="fromStation" value="南昌"/>
 
+<input type="hidden" name="toStation" value="东莞东"/>
+
+<input type="hidden" name="fromStationCode" value="NCG"/>
+
+<input type="hidden" name="toStationCode" value="DMQ"/>
+
+<input type="hidden" name="totalPayFee" value="115.00"/>
+
+<input type="hidden" name="couponPayFee" value="8.00"/>
+
+<input type="hidden" name="onlinePayFee" value="107.00"/>
+
+<input type="hidden" name="today" value='1480580669001' >
+
+
+
+
+
+<div id="orderDetailPage" class="common-wrapper">
 
     <ul class="jd-detail-wrapper">
-        <li id="selectPassenger" class="jd-detail-ticket jd-detail-quan jd-info">
-       		<span class="c-66 f-s-28">乘车人</span>
-            <i class="bg-ico ico-add"></i>
+
+        <li class="jd-detail-ticket jd-detail-header phase">
+
+            <p>
+
+								<span class="f-s-28 c-25">订单编号：46059276142</span>
+
+													<span id="orderState" class="fr red f-s-28">等待付款</span>
+
+				            </p>
+
         </li>
-        <li class="jd-list-ticket jd-customer-wrapper">
-        	<ul id="selectedPassengerList" class="jd-customer jd-table-view jd-active">
+
+        <li class="jd-detail-ticket jd-detail-info phase">
+
+            <ul class="jd-detail-content phase">
+
+                <li>
+
+                    <p class="f-s-26"><span class="c-68">发车时间：</span><span class="c-23">2016-12-22 01:37</span></p>
+
+
+
+                    <p class="f-s-26"><span class="c-68">车次信息：</span><span class="c-23">K1281（南昌－东莞东）</span></p>
+
+
+
+                    <p class="f-s-26"><span class="c-68">席别信息：</span><span class="c-23">硬座</span>
+
+                    </p>
+
+                </li>
+
+
+
+                <li>
+
+                                            <p class="f-s-26 overflow">
+
+							 								<span class="c-68 fl">乘 车 人：</span>
+
+														<span class="c-23 fl">
+
+								<span class="block">滕玉梅 1502031961****3927</span>
+
+																							</span>
+
+						</p>
+
+                                    </li>
+
+				
+
+                <li>
+
+                    <p class="f-s-26"><span class="c-68">联 系 人：</span><span
+
+                            class="c-23">滕玉梅 155****4241</span></p>
+
+                </li>
+
             </ul>
+
+            <!--<p class="f-s-26 txtr lh18"><span class="c-25 fr">失败原因文案失败原因文案失败原<br>因文案失败原因文案</span></p>-->
+
         </li>
+
     </ul>
 
-    <ul class="jd-detail-wrapper">
-        <li class="jd-detail-ticket jd-detail-money jd-order-info">
-            <p class="f-s-28"><span class="c-68">联系人</span>
-            <span class="ml32"><input type="text" name="contactName" value="" placeholder="必填"></span></p>
-            <p class="f-s-28"><span class="c-68">手机号</span>
-            <span class="ml32"><input type="tel" name="contactPhone" value="" placeholder="必填，用于接收出票通知" maxLength="11"></span></p>
+
+
+    <ul class="jd-detail-wrapper mt20">
+
+        <li class="jd-detail-ticket jd-detail-header phase">
+
+                            <p><span class="f-s-28 c-66">支付方式</span><span
+
+                        class="fr f-s-28 c-25">在线+东券支付</span></p>
+
+                    </li>
+
+        <li class="jd-detail-ticket jd-detail-info phase">
+
+            <ul class="jd-detail-content phase">
+
+                <li>
+
+                    <p class="f-s-26"><span class="c-66">商品总额</span><span class="red fr">¥115.00</span></p>
+
+                                            <p class="f-s-26"><span class="c-66">优惠券</span><span class="red fr">-¥8.00</span></p>
+
+                                    </li>
+
+                <li>
+
+                    <p class="f-s-30 txtr"><span class="c-23">实付款：<em class="f-s-40">¥107.00</em></span></p>
+
+
+
+                    <p class="f-s-22 txtr"><span class="c-84">下单时间：2016-12-01 16:24:21</span></p>
+
+                </li>
+
+            </ul>
+
+            <!--<p class="f-s-26 txtr lh18"><span class="c-25 fr">失败原因文案失败原因文案失败原<br>因文案失败原因文案</span></p>-->
+
         </li>
+
     </ul>
 
-    <!--二期start-->
-    <ul id="couponSelectDiv" class="jd-detail-wrapper" style="display:none">
-        <li class="jd-detail-ticket jd-detail-seat jd-seat">
-       		<span class="c-25 f-s-28">优惠券</span><span id="avlCoupon" class="ico-coupon-phase">无可用</span>
-			<span class="fr phase-txt">已抵扣 <font id="discountFee">0.00</font> 元</span>
-            <i class="bg-ico ico-more "></i>
-        </li>
-    </ul>
 
-	<ul class="jd-detail-wrapper">
-        <li class="jd-detail-ticket jd-detail-money01 jd-finished">
-       		<p class="f-s-28"><span class="c-99">车票金额</span><span class="fr red">¥<font id="totalFee">0.00</font></span></p>
-            <p class="f-s-28"><span class="c-99">优惠券</span><span class="fr red">-¥<font id="couponFee">0.00</font></span></p>
-        </li>
-    </ul>
-    <!--二期end-->
-    <div id="spacingDiv" class="spacing jd-btn-order"></div>
-</div>
-<!--footer start-->
-<div id="footer" class="jd-footer-wrapper jd-payfor-phase subpage">
-	<div class="agreeinfo"><input type="checkbox" name="agreement" value=""><span class="f-s-24 c-66">我已阅读并接受<a href="javascript:void(0);" id="userProtocol">购票及退改签规则</a></span></div>
-    <div class="jd-btn-phase">
-    	<span class="lft c-25 f-s-36"><em class="c-84 f-s-22">实付款：</em>¥<font id="onlineFee">0.00</font></span></span>
-        <span class="rgt"><button id="bookSeat" class="btn-payfor-phase jd-disabled">提交订单</button></span>
+
+    <div class="spacing"></div>
+
+    <div class="jd-footer-wrapper">
+
+        <div class="jd-ticket-footer phase">
+
+        
+
+						                <button id="goToPay" class="btn-again">去支付</button>
+
+			                                                        </div>
+
     </div>
-</div>
-<!--footer end-->
 
-<!--乘客列表页面-->
-<div id="passengerPage" class="subpage" style="display:none;padding-bottom:65px;">
 </div>
 
-<!--优惠券列表页面-->
-<div id="couponPage" class="subpage" style="display:none;padding-bottom:65px;">
-</div>
 
-<!--用户协议页面-->
-<div id="userProtocolPage" class="subpage" style="display:none;">
 
-<link rel="stylesheet" href="/css/agrreement.css">
-<div class="common-wrapper jd-agreement">
-    <dl>
-        <dt>第一条 费用说明</dt>
-        <dd>预订火车票，所需支付费用= 车票票面价*选择预订数量
-车票票面价：车票票面实际价格。<br>
-注：</dd>
-        <dd>
-        	<ol>
-            <li>1) 若您前往火车站或者火车票代售点自行换取订单内车票时，按铁路局的相关规定，可能产生¥5/张的费用，此项收费与途牛旅行网无关。</li>
-            <li>2) 同日期、同车次、同座位类型5张票可一次性下单。</li>
-            </ol>
-        </dd>
-    </dl>
-    <dl>
-        <dt>第二条 取票说明</dt>
-        <dd>
-        	<ol>
-            <li>1) 若您使用二代居民身份证预订火车票产品，可凭预订时所使用的乘车人有效二代居民身份证原件到车站售票窗口、铁路客票代售点或车站自动售票机上办理换票手续。</li>
-            <li>2) 若您持有的二代居民身份证无法自动识读或者使用二代居民身份证以外的其他有效身份证件预订的，需出示预订时所使用的乘车人有效身份证件原件和窗口取票号， 到车站售票窗口或铁路运输企业授权的铁路客票代售点，由售票员录入证件号码和窗口取票号码并核实后办理换票手续。</li>
-            <li>3) 若您在预订成功后、换票前，不慎遗失有效身份证件，须由您本人到乘车站铁路公安制证口办理临时身份证明。</li>
-            <li>4) 有效身份证件信息、窗口取票号等经核实一致的，予以换票；不一致的，不予换票。</li>
-            </ol>
-        </dd>
-        <dd>注：部分动车组列车可持二代居民身份证直接检票进站。</dd>
-    </dl>
-    <dl>
-        <dt>第三条 退票及改签说明</dt>
-        <dd>
-        	<ol>
-            <li>1) 在线退票服务时间为每天06:00-22:50，其他时间如需退票请前往火车站售票处办理。</li>
-            <li>2) 预订火车票成功后，如未取票且离订单内显示的火车发车时间大于90分钟，您可在线申请退票。预订成功后，如已取票或离订单内显示的火车发车时间小于90分钟，您须在发车前携带纸质车票及购票时使用的有效身份证件原价至全国任意一个火车站的退票窗口办理退票。根据铁路局规定，开车前第16天当天晚上22点之前办理退票的，不收取退票费。开车前49小时以上，手续费5%；开车前25-49小时之间，手续费10%；开车前25小时内，手续费20%。 最终退票手续费以铁路局实际收取为准。 其他客户，预订成功后，须携带预订时所使用的乘车人有效身份证件原件，在列车开车前前往车站退票窗口办理相关手续。</li>
-            <li>3) 预订成功后，如需办理订单内的车票改签，您须在换取纸质车票后携带预订时所使用的乘车人有效身份证件原件，在列车开车前前往车站改签窗口办理相关手续。</li>
-            <li>4) 铁路客票代售点不能办理改签、退票手续。使用二代居民身份证以外的其他有效身份证件原件预订或者二代居民身份证不能识读的，还须携带预订成功后提供给您的窗口取票号。</li>
-            <li>5) 途牛旅行网暂不支持在线改签，如需改签请前往车站窗口人工办理改签业务；车票只能改签一次；已经改签的车票不能再次改签，但可在改签后车票载明的列车开车前退票。</li>
-            </ol>
-        </dd>
-    </dl>
-    <dl>
-        <dt>第四条 退款说明</dt>
-        <dd>退款规定：</dd>
-        <dd>
-        	<ol>
-            <li>1) 产品预订失败退款：如果产品预订失败，途牛旅行网将在确认失败后7个工作日左右退款至原支付渠道，由银行将所有支付款项全额退回。</li>
-            <li>2) 产品差价退款：如果订单内含有的车票的实际票价低于您所支付的票价，途牛旅行网将在确认实际票价后将差额退款至原支付渠道，由银行将差额款项退回。</li>
-            <li>3) 产品退票退款：若客户自行将订单内含有的车票进行退票，途牛旅行网将在确认退票后，将实际应退款金额退回原支付渠道，由银行将退款款项退回（退款账期约7个工作日左右）。</li>
-            </ol>
-        </dd>
-        <dd>退款方式：以上产品退款一律按客户订单支付时的原支付渠道退回。</dd>
-        <dd>退款到帐日期：除产品退票退款以外，以上退款到账日期以银行为准，如超15个工作日未到帐，请至您的银行卡发卡行客服查询。</dd>
-    </dl>
-    <dl>
-        <dt>第五条 服务承诺</dt>
-        <dd>
-        	<ol>
-            <li>1) 产品预售期内第一时间短信通知您是否预订成功。</li>
-            <li>2) 产品预售期外，我们会在进入预售期后的第1天19:00前通知您是否预订成功。</li>
-            <li>3) 产品预订时间：06：00-23：00</li>
-            </ol>
-        </dd>
-    </dl>
-    <dl>
-        <dt>第六条 免责说明</dt>
-        <dd>
-        	<ol>
-            <li>1) 由于产品内含火车票，而全国各铁路局会随时调整车次、票价、坐席等信息，故本网显示产品信息，如车次、票价、坐席信息等仅供参考，最终以实际购买的产品价格为准。</li>
-            <li>2) 如因客户提供错误的订单信息（姓名、证件号码、日期、车次、座位类型等）或者因客户自身原因导致无法取票、车票丢失、车票损毁等情况所导致的损失，客户需自行承担相关损失费用。</li>
-            <li>3) 订单退款将按承诺时限退款到客户订单支付的原渠道，客户支付渠道到客户账户的时间由支付渠道决定，请您与支付渠道沟通联系。</li>
-            <li>4) 由于火车票信息可能随时变化，以及网络传输问题，途牛旅行网提供的此类信息可能并非最新或存在误差，因此仅供旅客作为一般参考，任何客户不能将此作为途牛旅行网做出任何承诺或做出任何保证的依据。</li>
-            <li>5) 途牛旅行网提供的是火车票代购服务，您接受本协议，意味着您同意我们使用您填写的乘客信息进行代购，包括但不限于授权我们使用您的乘客信息创建12306帐号，同时您必须遵守12306的购票规定的服务条款（https://kyfw.12306.cn/otn/regist/rule），对于您违反购票服务条款引起的争议和法律问题，由您自行承担。</li>
-            </ol>
-        </dd>
-    </dl>
-    <dl>
-        <dt>第七条 解决争议适用法律法规约定</dt>
-        <dd>
-        	在您的预订生效后，如果在本须知或订单约定内容履行过程中，您对相关事宜的履行发生争议，您同意按照中华人民共和国颁布的相关法律法规来解决争议，并同意接受南京市人民法院的管辖。
-        </dd>
-    </dl>
-    <dl>
-        <dt>第八条 其他</dt>
-        <dd>本火车票代购服务由南京途牛国际旅行社有限公司（本协议中或称“途牛旅行网”）为客户提供。
-        </dd>
-    </dl>
-</div></div>
-
-<!--12306登录页面-->
-<div id="12306Page" class="subpage"  style="display:none;">
-</div>
-
-<form id="submitOrder" method="post" action="/bookSeat/submitOrder.action">
-	<input type="hidden" name="token" value="b37e4736580f4e05b59a117bbd17d306" />
-	<input type="hidden" name="token2" value="" />
-	<input type="hidden" name="orderId" value=""/>
-	<input type="hidden" name="totalFee" value="" />
-	<input type="hidden" name="pwd" value="" />
-	<input type="hidden" name="payTypes" value=""/>
-	<input type="hidden" name="couponIds" value=""/>
-	<input type="hidden" name="couponFee" value=""/>
-</form>
-
-<script type="text/javascript" src="/js/min_js/jquery.md5.js?v=20161114"></script>
-<script type="text/javascript" src="/js/min_js/mobileSelect.js?v=20161114"></script>
-<script type="text/javascript" src="/js/min_js/windowHistory.js?v=20161114"></script>
 <script type="text/javascript" src="/js/min_js/loading.js?v=20161114"></script>
-<script type="text/javascript" src="/js/min_js/trainDate.js?v=20161114"></script>
-<script type="text/javascript" src="/js/min_js/stationsThrough.js?v=20161114"></script>
-<script type="text/javascript" src="/js/min_js/couponList.js?v=20161114"></script>
-<script type="text/javascript" src="/js/min_js/passengerList.js?v=20161114"></script>
-<script type="text/javascript" src="/js/min_js/passengerAdd.js?v=20161114"></script>
-<script type="text/javascript" src="/js/min_js/constants.js?v=20161114"></script>
+
 <script type="text/javascript" src="/js/min_js/simplepop.js?v=20161114"></script>
-<script type="text/javascript" src="/js/min_js/trainTrip.js?v=20161114"></script>
-<script type="text/javascript" src="/js/min_js/bindAccount.js?v=20161114"></script>
-<script type="text/javascript" src="/js/min_js/popup.js?v=20161114"></script>
-<script type="text/javascript" src="/js/min_js/book.js?v=20161114"></script>
+
+<script type="text/javascript" src="/js/min_js/orderDetail.js?v=20161114"></script>
+
+
+
+
 
 	<script type="text/javascript" src="//wl.jd.com/unify.min.js"></script>
+
 <script type="text/javascript" src="/js/min_js/bottom.js?v=20161114"></script> </body>
-</html>
+
+</html> 
