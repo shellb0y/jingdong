@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import base_data
 import log_ex as logger
 import requests
