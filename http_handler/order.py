@@ -97,7 +97,7 @@ class Order:
         logger.debug('GET %s' % url)
         resp = requests.get(url, headers=self.headers, verify=False)
         resp_body = resp.text
-        logger.debug('resp:%s' % resp_body)
+        # logger.debug('resp:%s' % resp_body)
 
         token = re.findall(r'<input type="hidden" name="token" value="(\w+)" />', resp_body)
         if token:
@@ -128,7 +128,7 @@ class Order:
         resp = requests.get(url, headers=self.headers)
         resp_body = resp.text
 
-        logger.debug('resp:%s' % resp_body)
+        # logger.debug('resp:%s' % resp_body)
 
         erpOrderId = re.findall(r'<input type="hidden" name="erpOrderId" value="(\w+)" />', resp_body)
         onlinePayFee = re.findall(r'<input type="hidden" name="onlinePayFee" value="(.*)"/>', resp_body)

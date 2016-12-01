@@ -30,14 +30,18 @@
 #     data[_t[0]]=_t[1]
 #
 # print data
-import re
 
-file_object = open('order_submit_response')
-try:
-     all_the_text = file_object.read( )
-     onlinePayFee = re.findall(r'<input type="hidden" name="onlinePayFee" value="(.*)"/>', all_the_text)
-
-     print onlinePayFee
-finally:
-     file_object.close( )
+# import re
+#
+# file_object = open('order_submit_response')
+# try:
+#      all_the_text = file_object.read( )
+#      onlinePayFee = re.findall(r'<input type="hidden" name="onlinePayFee" value="(.*)"/>', all_the_text)
+#
+#      print onlinePayFee
+# finally:
+#      file_object.close( )
+import time
+currentHour = int(time.strftime('%H',time.localtime(time.time())))
+print currentHour
 

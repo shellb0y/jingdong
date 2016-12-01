@@ -22,6 +22,13 @@ def place_order():
         partner_order_id = ''
 
         try:
+
+            currentHour = int(time.strftime('%H', time.localtime(time.time())))
+            if currentHour > 22 or currentHour < 7:
+                print 'sleep a hour'
+                time.sleep(3600)
+                continue
+
             logger.info('--------------------------')
             logger.info('get jingdong train data')
             try:
@@ -30,7 +37,7 @@ def place_order():
                 partner_order_id = train['order_id']
                 logger.debug(json.dumps(train))
             except Exception, e:
-                logger.error('get jingdong train data faild')
+                print 'get jingdong train data faild'
                 time.sleep(5)
                 continue
 
