@@ -10,7 +10,7 @@ import os
 import adsl
 
 PLACEORDERINTERVAL = 5
-FAILDWAITING = 180
+# FAILDWAITING = 180
 
 adsl_service = adsl.Adsl({"name": u"宽带连接".encode('gbk'),
                           "username": "057474432953",
@@ -113,7 +113,7 @@ def place_order():
                     'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&success=false&order_src=app' % partner_order_id)
                 logger.info(resp.text)
 
-                time.sleep(FAILDWAITING)
+                time.sleep(PLACEORDERINTERVAL)
 
 
 def login():
