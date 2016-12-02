@@ -110,7 +110,7 @@ def place_order():
                 logger.info('callback start')
                 resp = requests.get(
                     'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&success=false&order_src=app&msg=%s' % (
-                    partner_order_id, e.message))
+                        partner_order_id, e.message))
                 logger.info(resp.text)
 
                 time.sleep(PLACEORDERINTERVAL)
@@ -152,11 +152,17 @@ def login():
                 logger.info('login success,cookie:%s' % cookie)
 
                 h5_cookie = login.get_h5_cookie(cookie)
-                logger.info('get h5 cookie:%s,send to queue...' % h5_cookie)
+                logger.info('get h5 cookie:%s' % h5_cookie)
+
+                cookie = 'pt_key=%s;pwdt_id=%s;sid=%s;guid=%s;pt_pin=%s;mobilev=%s' % (
+                    h5_cookie['pt_key'], h5_cookie['pwdt_id'], h5_cookie['sid'], h5_cookie['guid'],
+                    h5_cookie['pt_pin'], h5_cookie['mobilev'])
 
                 url = 'http://114.55.34.8:1218/?name=jd_login&opt=put&auth=Fb@345!'
                 data = {'username': username, 'password': password,
-                        'cookie': h5_cookie}
+                        'cookie': cookie}
+
+                logger.info('send to queue...,%s' % json.dumps(data))
                 resp = requests.put(url, data=json.dumps(data))
                 if resp.text == 'HTTPSQS_PUT_OK':
                     logger.info('send to queue success')
