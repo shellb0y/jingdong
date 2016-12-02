@@ -41,7 +41,6 @@
 #      print onlinePayFee
 # finally:
 #      file_object.close( )
-import time
-currentHour = int(time.strftime('%H',time.localtime(time.time())))
-print currentHour
+a= '8.00000'
+print float(a)
 

@@ -22,7 +22,6 @@ def place_order():
         partner_order_id = ''
 
         try:
-
             currentHour = int(time.strftime('%H', time.localtime(time.time())))
             if currentHour > 22 or currentHour < 7:
                 print 'sleep a hour'
@@ -84,7 +83,7 @@ def place_order():
                 order_data['couponPrice'] = ''
             else:
                 order_data['couponid'] = couponid
-                order_data['couponPrice'] = int(couponPrice * 100)
+                order_data['couponPrice'] = int(float(couponPrice) * 100)
 
             logger.info('submit:%s' % json.dumps(order_data))
             if order.submit(order_data):
@@ -130,7 +129,7 @@ def login():
         try:
             accounts = file_object.readlines()
         except Exception, e:
-            logger.error('read file faild', e)
+            logger.error('read file faild')
             continue
         finally:
             file_object.close()
