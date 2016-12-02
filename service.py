@@ -109,7 +109,8 @@ def place_order():
             if partner_order_id:
                 logger.info('callback start')
                 resp = requests.get(
-                    'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&success=false&order_src=app' % partner_order_id)
+                    'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&success=false&order_src=app&msg=%s' % (
+                    partner_order_id, e.message))
                 logger.info(resp.text)
 
                 time.sleep(PLACEORDERINTERVAL)

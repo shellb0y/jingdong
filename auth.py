@@ -44,7 +44,7 @@ def get_req_data(username, password, jd_uuid, cmd1=2, cmd2=6):
 
     account = '000200' + hex(len(account) / 2).replace('0x', '') + account
     device_finger_print = '00040034' + (
-        '000a0001000402020020' + hashlib.md5('a086c68dae09###ss').hexdigest().upper()).encode('hex')
+        '000a0001000402020020' + hashlib.md5(jd_uuid.split('-')[1] + '###ss').hexdigest().upper()).encode('hex')
     device = '0008005d000200640007616e64726f69640005342e342e320005352e312e300008313238302a37323000056a64617070000' \
              '4776966690000001c%s000000010005312e342e320048001100036e6f7800034d693400034d49340000' % (
                  jd_uuid.encode('hex'))
