@@ -119,13 +119,14 @@ def place_order():
 def login_from_api():
     while True:
         try:
-            account = http_handler.account.getFromWenbin()
+            account = http_handler.account.getFromWenbin(adsl)
             if account:
                 url = 'http://114.55.34.8:1218/?name=jd_login&opt=put&auth=Fb@345!'
-                logger.info('send to queue...,%s' % json.dumps(account))
-                resp = requests.put(url, data=json.dumps(account))
+                data = json.dumps(account)
+                logger.info('send to queue...,%s' % data)
+                resp = requests.put(url, data=data)
                 if resp.text == 'HTTPSQS_PUT_OK':
-                    logger.info('send to queue success')
+                    logger.info('ALL SUCCESS')
                 else:
                     logger.info('send to queue faild\n%s,exit' % resp.text)
                     exit()

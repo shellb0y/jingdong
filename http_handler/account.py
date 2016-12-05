@@ -8,8 +8,8 @@ import traceback
 
 
 # {"smobile":"13585468575","syzm":"598756"}
-def getFromWenbin():
-    url = ''
+def getFromWenbin(adsl):
+    url = 'http://vooaa.cn:98/give.do?pw=2985256&number=1'
     logger.info('GET %s' % url)
     resp = requests.get(url)
     _account = resp.json()
@@ -18,10 +18,12 @@ def getFromWenbin():
     if not _account:
         return
 
-    account = {'username': _account['smobile'], 'password': _account['syzm'], 'valid': 0}
+    account = {'username': _account[0]['smobile'], 'password': _account[0]['syzm'], 'valid': 2}
     logger.info('uname:%s,pwd:%s,login...' % (account['username'], account['password']))
     uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
     user_agent = base_data.get_user_agent()
+
+    # adsl.reconnect()
 
     try:
         login = http_handler.login.Login(account['username'], account['password'], uuid, user_agent)
@@ -42,9 +44,17 @@ def getFromWenbin():
 
     while True:
         try:
+            resp = requests.get('http://vooaa.cn:98/update.do?smobile=%s&nstatus=%d&pw=46hg6u6' % (
+                account['username'], account['valid']))
+            if resp.text == 'ok':
+                logger.info('callback success')
+            else:
+                logger.info('callback faild:%s' % resp.text)
+
             resp = requests.post('http://115.28.102.142:8000/api/mobilepay/account/jd_xs_get_coupon',
                                  data=json.dumps(account), headers={'Content-Type': 'application/json'})
-            if resp:
+            if resp.text:
+                logger.info('save account success')
                 break
         except Exception, e:
             time.sleep(180)
