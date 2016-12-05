@@ -41,6 +41,30 @@
 #      print onlinePayFee
 # finally:
 #      file_object.close( )
-a= '8.00000'
-print float(a)
+
+import base64
+def to_hex_str(s):
+    byte = str(hex(ord(s))).replace('0x', '')
+    if len(byte) == 1:
+        byte = '0' + byte
+    return byte
+
+def hex_format_space(data):
+    return ' '.join(data[i:i + 2] for i in range(0, len(data), 2))
+
+a=15963256325
+print hex(a)
+hex = hex_format_space(str(a).encode('hex'))
+
+print str(a).encode('hex')
+
+req_data_array = map(lambda x: int(x, 16), hex.split(' '))
+# print req_data_array
+print base64.b64encode(bytearray(req_data_array))
+
+b = 't+itDImrWSiR\/V6gD6ei8A=='
+c = base64.b64decode(b)
+print c.encode('hex')
+
+
 

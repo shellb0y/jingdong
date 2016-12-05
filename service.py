@@ -116,7 +116,25 @@ def place_order():
                 time.sleep(PLACEORDERINTERVAL)
 
 
-def login():
+def login_from_api():
+    while True:
+        try:
+            account = http_handler.account.getFromWenbin()
+            if account:
+                url = 'http://114.55.34.8:1218/?name=jd_login&opt=put&auth=Fb@345!'
+                logger.info('send to queue...,%s' % json.dumps(account))
+                resp = requests.put(url, data=json.dumps(account))
+                if resp.text == 'HTTPSQS_PUT_OK':
+                    logger.info('send to queue success')
+                else:
+                    logger.info('send to queue faild\n%s,exit' % resp.text)
+                    exit()
+        except Exception, e:
+            logger.error(traceback.format_exc())
+            time.sleep(5)
+
+
+def login_from_txt():
     root_path = os.path.abspath(os.path.join(os.path.dirname(__file__)))
     account_txt = os.path.normpath(os.path.join(root_path, 'account/account.txt'))
 
@@ -158,16 +176,6 @@ def login():
                     h5_cookie['pt_key'], h5_cookie['pwdt_id'], h5_cookie['sid'], h5_cookie['guid'],
                     h5_cookie['pt_pin'], h5_cookie['mobilev'])
 
-                url = 'http://114.55.34.8:1218/?name=jd_login&opt=put&auth=Fb@345!'
-                data = {'username': username, 'password': password,
-                        'cookie': cookie}
 
-                logger.info('send to queue...,%s' % json.dumps(data))
-                resp = requests.put(url, data=json.dumps(data))
-                if resp.text == 'HTTPSQS_PUT_OK':
-                    logger.info('send to queue success')
-                else:
-                    logger.info('send to queue faild')
-                    logger.warn(resp.text)
             except Exception, e:
                 logger.error(traceback.format_exc())

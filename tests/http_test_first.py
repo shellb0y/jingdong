@@ -8,6 +8,15 @@ import time
 
 
 class HttpFirstTest(unittest.TestCase):
+    def setUp(self):
+        # self.uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
+        # self.user_agent = base_data.get_user_agent()
+        self.name = '18445781858'
+        self.pwd = '41848q'
+        self.uuid = '823466913984714-pgveoceqje9l'
+        self.user_agent = 'Mozilla/5.0 (Symbian/3; Series60/5.2 NokiaN8-00/012.002; Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/533.4 (KHTML, like Gecko) NokiaBrowser/7.3.0 Mobile Safari/533.4 3gpp-gba'
+        self.cookie = 'pin=jd_5b64e3796d3d7; wskey=AAFYPUmjAEDuqaiJt62w6hHbjQfU5MazEWA4Pmj7ihIQyHim0RyT4aye2BjZJVYI83JifZBdPr2gTBPHW8oO-c-b69PSQ9eo; whwswswws='
+
     def login_test(self):
         url = 'http://wlogin.m.jd.com/applogin_v2'
         uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12)
@@ -23,7 +32,6 @@ class HttpFirstTest(unittest.TestCase):
 
     def get_user_info_test(self):
         body = '{"flag":"nickname"}'
-        cookie = 'pin=jd_5b64e3796d3d7; wskey=AAFYPUmjAEDuqaiJt62w6hHbjQfU5MazEWA4Pmj7ihIQyHim0RyT4aye2BjZJVYI83JifZBdPr2gTBPHW8oO-c-b69PSQ9eo; whwswswws='
         uuid = ''
         sign = auth.sign('newUserInfo', uuid, body)
         print sign
@@ -35,7 +43,7 @@ class HttpFirstTest(unittest.TestCase):
         req = requests.post(url, data='body=' + urllib.quote(body) + '&', headers={
             'Charset': 'UTF-8',
             'Connection': 'close',
-            'Cookie': cookie,
+            'Cookie': self.cookie,
             'User-Agent': 'Dalvik/1.6.0 (Linux; U; Android 4.4.2; Nexus Build/KOT49H)',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'})
         print req.text
@@ -103,7 +111,7 @@ class HttpFirstTest(unittest.TestCase):
         orderid = resp['orderId']
 
         url = 'https://train.m.jd.com/bookSeat/book/s_1480435200000_%E5%8C%97%E4%BA%AC_BJP_%E4%B8%8A%E6%B5%B7_SHH_G5_edz'
-        req = requests.get(url, headers=headers,verify=False)
+        req = requests.get(url, headers=headers, verify=False)
 
         print req.text
 
@@ -127,6 +135,69 @@ class HttpFirstTest(unittest.TestCase):
                    'Accept-Language': 'zh-CN,en-US;q=0.8',
                    'cookie': cookie}
         data = 'token=56493c1030c44cf08e861765d373b99e&token2=56493c1030c44cf08e861765d373b99e&orderId=1285071&totalFee=55300&pwd=&payTypes=&couponIds=&couponFee=0'
-        req = requests.post(url, data=data, headers=headers,verify=False)
+        req = requests.post(url, data=data, headers=headers, verify=False)
         resp = req.text
         print resp
+
+    def test_seach_phone(self):
+        body = {"mobile": "m6zea9UPXp1LKzYzd1YWow=="}
+        sign = auth.sign('searchPczPriceList', self.uuid, json.dumps(body))
+        url = 'http://api.m.jd.com/client.action?functionId=searchPczPriceList&clientVersion=5.3.0&build=36639&client=android&d_brand=nubia&d_model=NX507J&osVersion=4.4.2&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122'%(self.uuid, sign[1], sign[0])
+        headers = {
+            'Charset': 'UTF-8',
+            'jdc-backup': self.cookie,
+            'Connection': 'close',
+            'Cookie': self.cookie,
+            'User-Agent': 'Dalvik/1.6.0 (Linux; U; Android 4.4.2; Nexus Build/KOT49H)',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+
+        resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
+        print resp.text
+
+    def test_queryNoticeConfig(self):
+        body = {"configType":1,"mobile": "m6zea9UPXp1LKzYzd1YWow=="}
+        sign = auth.sign('queryNoticeConfig', self.uuid, json.dumps(body))
+        url = 'http://api.m.jd.com/client.action?functionId=queryNoticeConfig&clientVersion=5.3.0&build=36639&client=android&d_brand=nubia&d_model=NX507J&osVersion=4.4.2&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122'%(self.uuid, sign[1], sign[0])
+        headers = {
+            'Charset': 'UTF-8',
+            'jdc-backup': self.cookie,
+            'Connection': 'close',
+            'Cookie': self.cookie,
+            'User-Agent': 'Dalvik/1.6.0 (Linux; U; Android 4.4.2; Nexus Build/KOT49H)',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+
+        resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
+        print resp.text
+
+    def test_user_mobile(self):
+        body = {}
+        sign = auth.sign('getUserMobile', self.uuid, json.dumps(body))
+        url = 'http://api.m.jd.com/client.action?functionId=getUserMobile&clientVersion=5.3.0&build=36639&client=android&d_brand=nubia&d_model=NX507J&osVersion=4.4.2&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122'%(self.uuid, sign[1], sign[0])
+        headers = {
+            'Charset': 'UTF-8',
+            'jdc-backup': self.cookie,
+            'Connection': 'close',
+            'Cookie': self.cookie,
+            'User-Agent': 'Dalvik/1.6.0 (Linux; U; Android 4.4.2; Nexus Build/KOT49H)',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+
+        resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
+        print resp.text
+
+    def test_phone_charge(self):
+        body = {"facePrice": "100.0", "isBingding": "0", "isNote": "0", "jdPrice": "99.80", "payType": "0",
+                "type": "1", "contact": "false", "mobile": "945UOUTLqNSLi+9eu1zb1g=="}
+        sign = auth.sign('submitPczOrder', self.uuid, json.dumps(body))
+        url = 'http://api.m.jd.com/client.action?functionId=submitPczOrder&client=android&clientVersion=5.3.0&build=36639&d_brand=ZTE&d_model=SCH-I779&osVersion=4.4.2&screen=1280*720&partner=tencent&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+            self.uuid, sign[1], sign[0])
+
+        headers = {
+            'Charset': 'UTF-8',
+            'jdc-backup':self.cookie,
+            'Connection': 'close',
+            'Cookie': self.cookie,
+            'User-Agent': 'Dalvik/1.6.0 (Linux; U; Android 4.4.2; Nexus Build/KOT49H)',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+
+        resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
+        print resp.text

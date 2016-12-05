@@ -9,7 +9,7 @@ if __name__ == "__main__":
         elif sys.argv[1] == '-spp':
             print 'spp'
         elif sys.argv[1] == '-l':
-            service.login()
+            service.login_from_api()
         else:
             print 'no support'
     else:
