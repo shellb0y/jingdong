@@ -107,10 +107,10 @@ def place_order():
             logger.error(traceback.format_exc())
 
             if partner_order_id:
-                url = 'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&success=false&order_src=app&msg=%s'
+                url = 'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&success=false&order_src=app&msg=%s' % (
+                partner_order_id, e.message)
                 logger.info('callback start.%s' % url)
-                resp = requests.get(
-                    url % (partner_order_id, e.message))
+                resp = requests.get(url)
                 logger.info(resp.text)
 
                 time.sleep(PLACEORDERINTERVAL)
