@@ -8,6 +8,8 @@ import traceback
 import time
 import os
 import adsl
+import urllib
+import auth
 
 PLACEORDERINTERVAL = 5
 # FAILDWAITING = 180
@@ -108,12 +110,111 @@ def place_order():
 
             if partner_order_id:
                 url = 'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&success=false&order_src=app&msg=%s' % (
-                partner_order_id, e.message)
+                    partner_order_id, e.message)
                 logger.info('callback start.%s' % url)
                 resp = requests.get(url)
                 logger.info(resp.text)
 
                 time.sleep(PLACEORDERINTERVAL)
+
+
+def get_account(uuid, category='jd_90_5'):
+    url = 'http://115.28.102.142:8000/api/mobilepay/account/%s' % category
+    while True:
+        try:
+            resp = requests.get(url)
+            account = resp.json()
+
+            user_agent = base_data.get_user_agent()
+            # adsl_service.reconnect()
+            try:
+                login = http_handler.login.Login(account['username'], account['password'], uuid, user_agent)
+                cookie = login.get_cookie()
+                logger.info('login success,cookie:%s' % cookie)
+                account['cookie'] = cookie
+            except Exception, e:
+                # TODO:send to server
+                logger.error('account valid')
+                continue
+
+            return account
+        except Exception, e:
+            logger.error('get jd account faild')
+            time.sleep(180)
+            continue
+
+
+def des_encryption(mobile):
+    url = 'http://115.28.102.142:8000/api/des/encode/%s' % mobile
+    while True:
+        try:
+            resp = requests.get(url)
+            mobile = resp.text
+            return mobile
+        except Exception, e:
+            logger.error('des encryption faild')
+            time.sleep(180)
+            continue
+
+def save_order(data):
+    url = 'http://115.28.102.142:8000/api/mobilepay/order'
+    while True:
+        try:
+            resp = requests.post(url)
+            if resp.text == 1:
+                return True
+            else:
+                return False
+        except Exception, e:
+            logger.error('save order faild')
+            time.sleep(180)
+            continue
+
+def phone_charge():
+    while True:
+        try:
+            url = 'http://139.199.65.115:1218/?name=phone_charge&opt=get&auth=Fb@345!'
+            resp = requests.get(url)
+            data = resp.json()
+        except Exception, e:
+            logger.error('phone charge data not found')
+            time.sleep(5)
+            continue
+
+        uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
+        # data = {'mobile':'15763563256','parterner_id':'123654','amount':100,callback:''}
+        mobile = des_encryption(data['mobile'])
+        account = get_account(uuid)
+
+        try:
+            body = {"dxqids": "7929697981", "facePrice": "100.0", "isBingding": "0", "isNote": "0", "jdPrice": "94.80",
+                    "payType": "10",
+                    "type": "1", "contact": "false", "mobile": mobile}
+            sign = auth.sign('submitPczOrder', uuid, json.dumps(body))
+            url = 'http://api.m.jd.com/client.action?functionId=submitPczOrder&client=android&clientVersion=5.3.0&build=36639&d_brand=ZTE&d_model=SCH-I779&osVersion=4.4.2&screen=1280*720&partner=tencent&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+                uuid, sign[1], sign[0])
+
+            headers = {
+                'Charset': 'UTF-8',
+                'jdc-backup': account['cookie'],
+                'Connection': 'close',
+                'Cookie': account['cookie'],
+                'User-Agent': 'Dalvik/1.6.0 (Linux; U; Android 4.4.2; Nexus Build/KOT49H)',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+
+            resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
+            ret = resp.json()
+            if ret['success']:
+                # TODO:save order,Cala,callback parterner
+                logger.info('%s charge success' % data['mobile'])
+            else:
+                #TODO:save order,callback parterner
+                logger.error('%s charge faild' % data['mobile'])
+
+                #TODO:save order
+        except Exception,e:
+            # TODO:send to server,callback parterner
+            logger.error('%s charge faild' % data['mobile'])
 
 
 def login_from_api():
