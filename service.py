@@ -220,7 +220,7 @@ def phone_charge():
 def login_from_api():
     while True:
         try:
-            account = http_handler.account.getFromWenbin(adsl)
+            account = http_handler.account.getFromHttpSqs(adsl)
             if account:
                 url = 'http://114.55.34.8:1218/?name=jd_login&opt=put&auth=Fb@345!'
                 data = json.dumps(account)
