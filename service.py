@@ -222,7 +222,7 @@ def login_from_api():
         try:
             account = http_handler.account.getFromHttpSqs(adsl)
             if account:
-                url = 'http://114.55.34.8:1218/?name=jd_login&opt=put&auth=Fb@345!'
+                url = 'http://139.199.65.115:1218/?name=jd_login&opt=put&auth=Fb@345!'
                 data = json.dumps(account)
                 logger.info('send to queue...,%s' % data)
                 resp = requests.put(url, data=data)
