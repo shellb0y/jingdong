@@ -5,6 +5,7 @@ import http_handler
 import json
 import time
 import traceback
+import adsl
 
 
 # {"smobile":"13585468575","syzm":"598756"}
@@ -29,7 +30,7 @@ def getFromHttpSqs(adsl):
     uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
     user_agent = base_data.get_user_agent()
 
-    # adsl.reconnect()
+    adsl.reconnect()
 
     try:
         login = http_handler.login.Login(account['username'], account['password'], uuid, user_agent)
