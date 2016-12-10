@@ -10,6 +10,7 @@ import os
 import adsl
 import urllib
 import auth
+import redis
 
 PLACEORDERINTERVAL = 5
 # FAILDWAITING = 180
@@ -156,6 +157,7 @@ def des_encryption(mobile):
             time.sleep(180)
             continue
 
+
 def save_order(data):
     url = 'http://115.28.102.142:8000/api/mobilepay/order'
     while True:
@@ -170,16 +172,32 @@ def save_order(data):
             time.sleep(180)
             continue
 
+
 def phone_charge():
+    pool = redis.ConnectionPool(host='139.199.65.115', port=6379, db=0)
+    r = redis.Redis(connection_pool=pool)
     while True:
         try:
-            url = 'http://139.199.65.115:1218/?name=phone_charge&opt=get&auth=Fb@345!'
-            resp = requests.get(url)
-            data = resp.json()
+            print 'redis brpop'
+            result = r.brpop('order_platform:phone_charge:order', 5)
+            if result:
+                trade_no = result[1]
+                logger.info('get trade no:%s' % trade_no)
+                data = r.hgetall('order_platform:phone_charge:trade_no:%s' % trade_no)
+                logger.info('get trade data:%s' % data)
+
+                if not data:
+                    #TODO:trade data loss
+                    logger.error('trade_no %s data loss' % trade_no)
+                    continue
+            else:
+                continue
         except Exception, e:
-            logger.error('phone charge data not found')
+            logger.error(e.message)
             time.sleep(5)
             continue
+
+        #TODO:
 
         uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
         # data = {'mobile':'15763563256','parterner_id':'123654','amount':100,callback:''}
@@ -208,11 +226,11 @@ def phone_charge():
                 # TODO:save order,Cala,callback parterner
                 logger.info('%s charge success' % data['mobile'])
             else:
-                #TODO:save order,callback parterner
+                # TODO:save order,callback parterner
                 logger.error('%s charge faild' % data['mobile'])
 
-                #TODO:save order
-        except Exception,e:
+                # TODO:save order
+        except Exception, e:
             # TODO:send to server,callback parterner
             logger.error('%s charge faild' % data['mobile'])
 
