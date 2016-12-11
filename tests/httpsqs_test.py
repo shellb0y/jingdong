@@ -21,7 +21,7 @@ class HttpSqsTestSuite(unittest.TestCase):
 
     def test_put_to_jd_wait_login(self):
         url = 'http://139.199.65.115:1218/?name=jd_wait_login&opt=put&auth=Fb@345!'
-        data = {'username': 'jd_6c83b7ced8f82', 'password': 'n96mh5'}
+        data = {'username': 'jd_71dbc28bb8e51', 'password': '76jdou'}
         resp = requests.put(url, data=json.dumps(data))
         print resp.text
 
