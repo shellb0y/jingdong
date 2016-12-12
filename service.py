@@ -34,7 +34,7 @@ def place_order():
             logger.info('--------------------------')
             logger.info('get jingdong train data')
             try:
-                resp = requests.get('http://op.yikao666.cn/JDTrainOpen/getTaskForJD')
+                resp = requests.get('http://op.yikao666.cn/JDTrainOpen/getTaskForJD?order_src=app')
                 train = resp.json()
                 partner_order_id = train['order_id']
                 logger.debug(json.dumps(train))

@@ -139,21 +139,90 @@ class HttpFirstTest(unittest.TestCase):
         resp = req.text
         print resp
 
-    #body={"dxqids":"7929697981","facePrice":"100.0","isBingding":"0","isNote":"0","jdPrice":"94.80","payType":"10","type":"1","contact":"false","mobile":"t+itDImrWSiR\/V6gD6ei8A=="}&
-    def test_phone_charge(self):
-        body = {"dxqids":"7929697981","facePrice": "100.0", "isBingding": "0", "isNote": "0", "jdPrice": "99.80", "payType": "10",
-                "type": "1", "contact": "false", "mobile": "945UOUTLqNSLi+9eu1zb1g=="}
-        sign = auth.sign('submitPczOrder', self.uuid, json.dumps(body))
-        url = 'http://api.m.jd.com/client.action?functionId=submitPczOrder&client=android&clientVersion=5.3.0&build=36639&d_brand=ZTE&d_model=SCH-I779&osVersion=4.4.2&screen=1280*720&partner=tencent&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+    def test_seach_phone(self):
+        body = {"mobile": "m6zea9UPXp1LKzYzd1YWow=="}
+        sign = auth.sign('searchPczPriceList', self.uuid, json.dumps(body))
+        url = 'http://api.m.jd.com/client.action?functionId=searchPczPriceList&clientVersion=5.3.0&build=36639&client=android&osVersion=4.4.2&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
             self.uuid, sign[1], sign[0])
-
         headers = {
             'Charset': 'UTF-8',
-            'jdc-backup':self.cookie,
+            'jdc-backup': self.cookie,
             'Connection': 'close',
             'Cookie': self.cookie,
             'User-Agent': 'Dalvik/1.6.0 (Linux; U; Android 4.4.2; Nexus Build/KOT49H)',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
 
         resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
+        print resp.text
+
+        resp = resp.json()
+        data = filter(lambda sku: sku['facePrice'] == '100', resp['skuList'])
+        print len(data)
+        print str(float(data[0]['jdPrice']) / 100)
+
+    def test_queryNoticeConfig(self):
+        body = {"configType": 1, "mobile": "m6zea9UPXp1LKzYzd1YWow=="}
+        sign = auth.sign('queryNoticeConfig', self.uuid, json.dumps(body))
+        url = 'http://api.m.jd.com/client.action?functionId=queryNoticeConfig&clientVersion=5.3.0&build=36639&client=android&d_brand=nubia&d_model=NX507J&osVersion=4.4.2&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+            self.uuid, sign[1], sign[0])
+        headers = {
+            'Charset': 'UTF-8',
+            'jdc-backup': self.cookie,
+            'Connection': 'close',
+            'Cookie': self.cookie,
+            'User-Agent': 'Dalvik/1.6.0 (Linux; U; Android 4.4.2; Nexus Build/KOT49H)',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+
+        resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
+        print resp.text
+
+    def test_user_mobile(self):
+        body = {}
+        sign = auth.sign('getUserMobile', self.uuid, json.dumps(body))
+        url = 'http://api.m.jd.com/client.action?functionId=getUserMobile&clientVersion=5.3.0&build=36639&client=android&d_brand=nubia&d_model=NX507J&osVersion=4.4.2&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+            self.uuid, sign[1], sign[0])
+        headers = {
+            'Charset': 'UTF-8',
+            'jdc-backup': self.cookie,
+            'Connection': 'close',
+            'Cookie': self.cookie,
+            'User-Agent': 'Dalvik/1.6.0 (Linux; U; Android 4.4.2; Nexus Build/KOT49H)',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+
+        resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
+        print resp.text
+
+    # {"code":"0","orderId":"46431345969","money":9490}
+    # body={"dxqids":"7929697981","facePrice":"100.0","isBingding":"0","isNote":"0","jdPrice":"94.80","payType":"10","type":"1","contact":"false","mobile":"t+itDImrWSiR\/V6gD6ei8A=="}&
+    def test_phone_charge(self):
+        body = {"facePrice": "10", "isBingding": "0", "isNote": "0", "jdPrice": "10.00",
+                "payType": "0", "type": "1", "contact": "false", "mobile": '945UOUTLqNSLi+9eu1zb1g=='}
+        # body = {"facePrice": "10", "isBingding": "0", "isNote": "0", "jdPrice": "10.00", "payType": "0",
+        #         "type": "1", "contact": "false", "mobile": "945UOUTLqNSLi+9eu1zb1g=="}
+        sign = auth.sign('submitPczOrder', self.uuid, json.dumps(body))
+        url = 'http://api.m.jd.com/client.action?functionId=submitPczOrder&client=android&clientVersion=5.3.0&build=36639&d_brand=ZTE&d_model=SCH-I779&osVersion=4.4.2&screen=1280*720&partner=tencent&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+            self.uuid, sign[1], sign[0])
+
+        headers = {
+            'Charset': 'UTF-8',
+            'jdc-backup': self.cookie,
+            'Connection': 'close',
+            'Cookie': self.cookie,
+            'User-Agent': 'Dalvik/1.6.0 (Linux; U; Android 4.4.2; Nexus Build/KOT49H)',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+
+        resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
+        print resp.text
+
+    def testfda(self):
+        pay_task_data = {"sessionId": "",
+                         "data": {"exData": {"orderId": "", "userId": "", "payurl": "", "Cookie": "", "pc_Cookie": ""},
+                                  "amount": 9980, "ticketOrderNo": "46457211794", "siteNo": "jingdong_phone",
+                                  "loginUser": "jd_5cef10a31da83", "creatTime": "2016-12-12 19:53:47.218000",
+                                  "sysOrderNo": "49", "isPay": "false", "loginPwd": "qq456789"}, "module": {"worker": [
+                {"type": 0, "assembly": "FBServer.Pay.TrainJD.Pay_RechargePhoneBillJD,FBServer.Pay.TrainJD.dll",
+                 "parms": ""}], "payer": ["{0}"]}}
+        url = 'http://op.yikao666.cn/JDTrainOpen/CreatePayTaskByPhone'
+        pay_task_data = json.dumps(pay_task_data)
+        resp = requests.post(url, data={'send_data': pay_task_data})
         print resp.text
