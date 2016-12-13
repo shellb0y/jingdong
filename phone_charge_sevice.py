@@ -43,7 +43,7 @@ def get_account(uuid):
                 #     h5_cookie['pt_key'], h5_cookie['pwdt_id'], h5_cookie['sid'], h5_cookie['guid'],
                 #     h5_cookie['pt_pin'], h5_cookie['mobilev'])
                 # account['h5_cookie'] = cookie
-                account['valid'] = 1
+                # account['valid'] = 1
                 return account
             except Exception, e:
                 account['valid'] = 0
@@ -56,8 +56,7 @@ def get_account(uuid):
                         logger.info('resp:%s' % resp.text)
                         if resp.text == '1':
                             logger.info('success')
-                        else:
-                            logger.warn('maybe faild')
+                            break
                     except Exception, e:
                         time.sleep(60)
                         continue
@@ -117,31 +116,6 @@ def save_order(data, id=0):
 
 
 def callback_partner_and_save_order(data, success, order_id, pc_cookie=''):
-    while True:
-        try:
-            logger.info('callback begin')
-            t = str(int(round(time.time() * 1000)))
-            _data = {'partner_order_id': data['partner_order_id'], 'amount': data['partner_price'],
-                     'money': float(data['money']) / 100,
-                     'trade_no': data['trade_no'],
-                     'success': success, 't': t,
-                     'sign': hashlib.md5(
-                         str(data['amount']) + data['partner_order_id'] + json.loads(data['partner'])['secret'] + str(
-                             success) + t +
-                         data['trade_no'])}
-            resp = requests.get(urllib.unquote_plus(data['callback']), params=_data)
-            if resp.text == '1':
-                logger.info('sucess')
-                data['callback_status'] = u'回调成功'
-            else:
-                logger.warn('faild')
-                data['callback_status'] = u'回调失败'
-
-            break
-        except Exception:
-            logger.error(traceback.format_exc())
-            data['callback_status'] = u'回调异常'
-            continue
     if success:
         while True:
             try:
@@ -166,7 +140,7 @@ def callback_partner_and_save_order(data, success, order_id, pc_cookie=''):
                         "loginUser": data['account']["username"],
                         "loginPwd": data['account']["password"],
                         "exData": {
-                            "Cookie": pc_cookie,
+                            "Cookie": pc_cookie.replace('"', ''),
                             "userId": '',
                             "mCookie": '',
                             "orderId": "",
@@ -182,6 +156,7 @@ def callback_partner_and_save_order(data, success, order_id, pc_cookie=''):
                 logger.debug('POST %s\n%s' % (url, pay_task_data))
                 resp = requests.post(url, data={'send_data': pay_task_data})
                 logger.info(resp.text)
+                data['pay_task_id'] = resp.text
                 break
             except Exception, e:
                 logger.error('callback pay faild')
@@ -220,6 +195,7 @@ def phone_charge():
 
         data['status'] = '正在下单'
         data['partner_price'] = ''
+        data['callback_status'] = ''
         order_id = save_order(data)
 
         uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
@@ -227,8 +203,7 @@ def phone_charge():
         mobile = des_encryption(data['mobile'])
         account = get_account(uuid)
 
-        data['account'] = {'account_id': account['account_id'], 'username': account['username'],
-                           'password': account['password']}
+        data['account'] = account
         pc_cookie = account['pc_cookie']
         try:
             headers = {
@@ -258,20 +233,36 @@ def phone_charge():
 
             sku = filter(lambda s: s['facePrice'] == str(data['amount']), resp['skuList'])
             if len(sku) == 0:
+                data['status'] = '数据丢失'
                 callback_partner_and_save_order(data, 0, order_id)
                 continue
 
-            # data['jdPrice'] = float(sku[0]['jdPrice']) / 100 - account['compon'][0]["price"]
-            # # "dxqids": "7929697981",
-            # body = {"dxqids": account['compon'][0]["id"], "facePrice": data['amount'], "isBingding": "0", "isNote": "0",
-            #         "jdPrice": str(data['jdPrice']),
-            #         "payType": "10", "type": "1", "contact": "false", "mobile": mobile}
+            logger.info('get compon')
+            sign = auth.sign('queryPczFavourableInfo', uuid, json.dumps(body))
+            url = 'http://api.m.jd.com/client.action?functionId=queryPczFavourableInfo&clientVersion=5.3.0&build=36639&client=android&d_brand=nubia&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+                uuid, sign[1], sign[0])
 
-            data['jdPrice'] = float(sku[0]['jdPrice']) / 100
-            # "dxqids": "7929697981",
-            body = {"facePrice": data['amount'], "isBingding": "0", "isNote": "0",
+            resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
+            resp = resp.json()
+            logger.debug(resp)
+            if len(resp['dxqInfos']) > 0:
+                discount = resp['dxqInfos'][0]['discount']  # 优惠金额
+                dxqids = resp['dxqInfos'][0]['id']
+            else:
+                data['status'] = '没有优惠券'
+                callback_partner_and_save_order(data, 0, order_id)
+                continue
+
+            data['jdPrice'] = float(sku[0]['jdPrice']) / 100 - discount
+            body = {"dxqids": dxqids, "facePrice": data['amount'], "isBingding": "0", "isNote": "0",
                     "jdPrice": str(data['jdPrice']),
-                    "payType": "0", "type": "1", "contact": "false", "mobile": mobile}
+                    "payType": "10", "type": "1", "contact": "false", "mobile": mobile}
+
+            # data['jdPrice'] = float(sku[0]['jdPrice']) / 100
+            # # "dxqids": "7929697981",
+            # body = {"facePrice": data['amount'], "isBingding": "0", "isNote": "0",
+            #         "jdPrice": str(data['jdPrice']),
+            #         "payType": "0", "type": "1", "contact": "false", "mobile": mobile}
             sign = auth.sign('submitPczOrder', uuid, json.dumps(body))
             url = 'http://api.m.jd.com/client.action?functionId=submitPczOrder&client=android&clientVersion=5.3.0&build=36639&osVersion=4.4.2&screen=1280*720&partner=tencent&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
                 uuid, sign[1], sign[0])
@@ -280,19 +271,99 @@ def phone_charge():
             resp = requests.post(url, data=body, headers=headers)
             ret = resp.json()
             logger.debug(resp.text)
-            if ret['orderId']:
+            if ret.has_key('orderId'):
                 data['jd_order_id'] = ret['orderId']
                 data['money'] = ret['money']
-                data['status'] = u'下单成功,等待支付'
+                data['status'] = u'下单成功'
                 success = 1
                 logger.info('%s charge success,callback' % data['mobile'])
             else:
                 data['status'] = u'下单失败'
-                logger.error('%s charge faild\n%s' % data['mobile'], traceback.format_exc())
+                logger.error('%s charge faild\n%s' % (data['mobile'], traceback.format_exc()))
 
         except Exception, e:
             data['status'] = u'下单异常'
             logger.error(traceback.format_exc())
         finally:
-            r.delete('order_platform:phone_charge:trade_no:%s' % trade_no)
+            # r.delete('order_platform:phone_charge:trade_no:%s' % trade_no)
             callback_partner_and_save_order(data, success, order_id, pc_cookie)
+
+
+def sync_status_from_jd():
+    while True:
+        try:
+            print '-----------------------'
+            logger.info('get order pay success')
+            resp = requests.get(base_data.ORDER_PAYSUCCESS_API_GET)
+            resp = resp.json()
+
+            for order in resp:
+                data = json.loads(order['data'])
+                cookie = data['account']['cookie'].replace('"', '')
+                logger.info('get jd order status\n%s' % data['pay_task_id'].replace('"', ''))
+                uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
+                headers = {
+                    'Charset': 'UTF-8',
+                    'jdc-backup': cookie,
+                    'Connection': 'close',
+                    'Cookie': cookie,
+                    'User-Agent': 'okhttp/3.2.0',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+                body = {"orderId": data['jd_order_id'].replace('"', '')}
+                sign = auth.sign('queryPczOrderInfo', uuid, json.dumps(body))
+                url = 'http://api.m.jd.com/client.action?functionId=queryPczOrderInfo&clientVersion=5.3.0&build=36639&client=android&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+                    uuid, sign[1], sign[0])
+                body = 'body=' + urllib.quote_plus(json.dumps(body)) + '&'
+                resp = requests.post(url, data=body, headers=headers)
+                ret = resp.json()
+
+                jd_order_status = ret['rechargeOrder']['orderStatusName']
+                if jd_order_status == u'充值成功':
+                    partner = json.loads(data['partner'])
+                    success = '1'
+                    while True:
+                        try:
+                            logger.info('callback partner %s begin' % partner['name'])
+                            t = str(int(round(time.time() * 1000)))
+                            _data = {'partner_order_id': data['partner_order_id'], 'amount': data['partner_price'],
+                                     'money': float(data['money']) / 100,
+                                     'trade_no': data['trade_no'],
+                                     'success': success, 't': t,
+                                     'sign': hashlib.md5(
+                                         str(data['amount']) + data['partner_order_id'] + partner[
+                                             'secret'] + success + t + data['trade_no']).hexdigest()}
+                            resp = requests.get(urllib.unquote_plus(data['callback']), params=_data)
+                            logger.info(resp.text)
+                            if resp.text == '1':
+                                logger.info('sucess')
+                                callback_status = u'回调成功'
+                            else:
+                                logger.warn('faild')
+                                callback_status = u'回调失败'
+
+                            break
+                        except Exception:
+                            logger.error(traceback.format_exc())
+                            data['callback_status'] = u'回调异常'
+                            continue
+
+                    while True:
+                        try:
+                            logger.info('callback order status')
+                            resp = requests.post(base_data.ORDER_STATUS_API_POST,
+                                                 json={'order_id': data['pay_task_id'].replace('"', ''),
+                                                       'status': jd_order_status, 'callback_status': callback_status})
+                            logger.info(resp.text)
+                            break
+                        except Exception, e:
+                            logger.error(traceback.format_exc())
+                            time.sleep(60)
+                            continue
+                else:
+                    logger.info(ret['orderStatusName'])
+
+            time.sleep(5)
+        except Exception, e:
+            logger.error(traceback.format_exc())
+            time.sleep(60)
+            continue

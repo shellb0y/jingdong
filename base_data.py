@@ -12,8 +12,8 @@ ORDER_PLATFORM_HOST = 'http://192.168.3.113:3000/api'
 ORDER_SAVE_API_POST = '%s/order' % ORDER_PLATFORM_HOST
 ORDER_STATUS_API_POST = '%s/order/status' % ORDER_PLATFORM_HOST
 JD_ACCOUNT_API_GET = '%s/account/jd/phone_charge' % ORDER_PLATFORM_HOST
-JD_ACCOUNT_API_POST = '%s/account/jd/phone_charge' % ORDER_PLATFORM_HOST
-
+JD_ACCOUNT_API_POST = '%s/account' % ORDER_PLATFORM_HOST
+ORDER_PAYSUCCESS_API_GET = '%s/order/paysuccess' % ORDER_PLATFORM_HOST
 
 def get_random_letter_number(n=16):
     token = []

@@ -73,5 +73,6 @@ print c.encode('hex')
 # else:
 #     print 'ping ok'
 
-import datetime
-print {'a':str(datetime.datetime.now())}
+import hashlib
+m= hashlib.md5('11111').hexdigest()
+print m

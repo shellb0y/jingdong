@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import requests
 import unittest
 import auth
@@ -11,11 +12,11 @@ class HttpFirstTest(unittest.TestCase):
     def setUp(self):
         # self.uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
         # self.user_agent = base_data.get_user_agent()
-        self.name = '18445781858'
-        self.pwd = '41848q'
+        self.name = 'jd_7c9b8c6cbd4c9'
+        self.pwd = 'pmq25627314'
         self.uuid = '823466913984714-pgveoceqje9l'
         self.user_agent = 'Mozilla/5.0 (Symbian/3; Series60/5.2 NokiaN8-00/012.002; Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/533.4 (KHTML, like Gecko) NokiaBrowser/7.3.0 Mobile Safari/533.4 3gpp-gba'
-        self.cookie = 'pin=jd_600c09353d777; wskey=AAFYRnzAAEA2gJb0tTAEHzWL9YM-cujTq1SnIpOfK1Bcd28zOAdt5d09Yn1U3R-rbv0tddbcr8uDp6z3trvUJy7LQ_sZEEaJ; whwswswws=00'
+        self.cookie = 'pin=jd_600c09353d777; wskey=AAFYT6k7AEBQylSHmj8IUlAX8ZJQrveYl5BePgv1YYEMvmiv3yeJZ6pUGApYqiiwxKFbWVK_YDWBR_YgosM1ELMoLJn5qwvD; whwswswws=00'
 
     def login_test(self):
         url = 'http://wlogin.m.jd.com/applogin_v2'
@@ -192,6 +193,23 @@ class HttpFirstTest(unittest.TestCase):
         resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
         print resp.text
 
+    #{"code":"0","dxqInfos":[{"id":"7929697981","key":"E49C-9F47-A083-D1F4","batchId":34056994,"venderId":0,"couponType":1,"couponStyle":0,"discount":5.0000,"quota":90.0000,"beginTime":1480521600000,"endTime":1481731140000,"state":2,"couponLimitType":1,"couponLimitInfo":"仅可购买手机话费充值商品","orderId":0,"department":0,"deductType":0,"couponPlatform":0,"couponAreaType":1,"platformDescription":[],"createTime":1480901812000}],"beans":{"balance":19,"minMoney":"50","minMoneyText":"充值50元面值以上可使用","left":true,"percent":0.2,"exchangeRate":100,"useJingdouMaxCount":3},"openPay":"true","payConfig":{"submitKey":"securityPayPassword","functionId":"to","url":"https://passport.m.jd.com/payPassword/validateFindPayPassword.action","openUrl":"https://passport.m.jd.com/payPassword/openPayPassword.action"},"fpSwitch":false,"longPwdActive":true,"shortPwdActive":false,"dongFree":true,"needRNForJingdou":true,"realNameUrl":"https://msc.jd.com/auth/loginpage/wcoo/toAuthPage?source=2&businessType=193"}
+    def test_queryPczFavourableInfo(self):
+        body = {}
+        sign = auth.sign('queryPczFavourableInfo', self.uuid, json.dumps(body))
+        url = 'http://api.m.jd.com/client.action?functionId=queryPczFavourableInfo&clientVersion=5.3.0&build=36639&client=android&d_brand=nubia&d_model=NX507J&osVersion=4.4.2&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+            self.uuid, sign[1], sign[0])
+        headers = {
+            'Charset': 'UTF-8',
+            'jdc-backup': self.cookie,
+            'Connection': 'close',
+            'Cookie': self.cookie,
+            'User-Agent': 'Dalvik/1.6.0 (Linux; U; Android 4.4.2; Nexus Build/KOT49H)',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+
+        resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
+        print resp.text
+
     # {"code":"0","orderId":"46431345969","money":9490}
     # body={"dxqids":"7929697981","facePrice":"100.0","isBingding":"0","isNote":"0","jdPrice":"94.80","payType":"10","type":"1","contact":"false","mobile":"t+itDImrWSiR\/V6gD6ei8A=="}&
     def test_phone_charge(self):
@@ -212,17 +230,4 @@ class HttpFirstTest(unittest.TestCase):
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
 
         resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
-        print resp.text
-
-    def testfda(self):
-        pay_task_data = {"sessionId": "",
-                         "data": {"exData": {"orderId": "", "userId": "", "payurl": "", "Cookie": "", "pc_Cookie": ""},
-                                  "amount": 9980, "ticketOrderNo": "46457211794", "siteNo": "jingdong_phone",
-                                  "loginUser": "jd_5cef10a31da83", "creatTime": "2016-12-12 19:53:47.218000",
-                                  "sysOrderNo": "49", "isPay": "false", "loginPwd": "qq456789"}, "module": {"worker": [
-                {"type": 0, "assembly": "FBServer.Pay.TrainJD.Pay_RechargePhoneBillJD,FBServer.Pay.TrainJD.dll",
-                 "parms": ""}], "payer": ["{0}"]}}
-        url = 'http://op.yikao666.cn/JDTrainOpen/CreatePayTaskByPhone'
-        pay_task_data = json.dumps(pay_task_data)
-        resp = requests.post(url, data={'send_data': pay_task_data})
         print resp.text
