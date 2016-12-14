@@ -136,7 +136,7 @@ def callback_partner_and_save_order(data, success, order_id, pc_cookie=''):
                     "data": {
                         "siteNo": "jingdong_phone",
                         "ticketOrderNo": data['jd_order_id'],
-                        "sysOrderNo": order_id,
+                        "sysOrderNo": data['trade_no'],
                         "loginUser": data['account']["username"],
                         "loginPwd": data['account']["password"],
                         "exData": {
@@ -246,22 +246,22 @@ def phone_charge():
             resp = resp.json()
             logger.debug(resp)
             if len(resp['dxqInfos']) > 0:
-                discount = resp['dxqInfos'][0]['discount']  # 优惠金额
-                dxqids = resp['dxqInfos'][0]['id']
+                data['discount'] = resp['dxqInfos'][0]['discount']  # 优惠金额
+                data['dxqids'] = resp['dxqInfos'][0]['id']
             else:
                 data['status'] = '没有优惠券'
                 callback_partner_and_save_order(data, 0, order_id)
                 continue
 
-            data['jdPrice'] = float(sku[0]['jdPrice']) / 100 - discount
-            body = {"dxqids": dxqids, "facePrice": data['amount'], "isBingding": "0", "isNote": "0",
-                    "jdPrice": str(data['jdPrice']),
+            data['jd_price'] = float(sku[0]['jdPrice']) / 100 - data['discount']
+            body = {"dxqids": data['dxqids'], "facePrice": data['amount'], "isBingding": "0", "isNote": "0",
+                    "jdPrice": str(data['jd_price']),
                     "payType": "10", "type": "1", "contact": "false", "mobile": mobile}
 
-            # data['jdPrice'] = float(sku[0]['jdPrice']) / 100
+            # data['jd_price'] = float(sku[0]['jdPrice']) / 100
             # # "dxqids": "7929697981",
             # body = {"facePrice": data['amount'], "isBingding": "0", "isNote": "0",
-            #         "jdPrice": str(data['jdPrice']),
+            #         "jdPrice": str(data['jd_price']),
             #         "payType": "0", "type": "1", "contact": "false", "mobile": mobile}
             sign = auth.sign('submitPczOrder', uuid, json.dumps(body))
             url = 'http://api.m.jd.com/client.action?functionId=submitPczOrder&client=android&clientVersion=5.3.0&build=36639&osVersion=4.4.2&screen=1280*720&partner=tencent&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
@@ -325,16 +325,18 @@ def sync_status_from_jd():
                         try:
                             logger.info('callback partner %s begin' % partner['name'])
                             t = str(int(round(time.time() * 1000)))
-                            _data = {'partner_order_id': data['partner_order_id'], 'amount': data['partner_price'],
-                                     'money': float(data['money']) / 100,
+                            _data = {'amount': data['partner_price'],
                                      'trade_no': data['trade_no'],
                                      'success': success, 't': t,
                                      'sign': hashlib.md5(
-                                         str(data['amount']) + data['partner_order_id'] + partner[
+                                         str(data['partner_price']) + partner[
                                              'secret'] + success + t + data['trade_no']).hexdigest()}
+                            logger.debug('GET %s\n%s' % (data['callback'], json.dumps(_data)))
                             resp = requests.get(urllib.unquote_plus(data['callback']), params=_data)
+                            logger.debug(resp.url)
                             logger.info(resp.text)
-                            if resp.text == '1':
+                            resp = resp.json()
+                            if resp['success'] == 1:
                                 logger.info('sucess')
                                 callback_status = u'回调成功'
                             else:
@@ -350,9 +352,11 @@ def sync_status_from_jd():
                     while True:
                         try:
                             logger.info('callback order status')
+                            data = {'order_id': data['pay_task_id'].replace('"', ''),
+                                    'status': jd_order_status, 'callback_status': callback_status}
+                            logger.debug('POST %s\n%s' % (base_data.ORDER_STATUS_API_POST, json.dumps(data)))
                             resp = requests.post(base_data.ORDER_STATUS_API_POST,
-                                                 json={'order_id': data['pay_task_id'].replace('"', ''),
-                                                       'status': jd_order_status, 'callback_status': callback_status})
+                                                 json=data)
                             logger.info(resp.text)
                             break
                         except Exception, e:
@@ -360,7 +364,7 @@ def sync_status_from_jd():
                             time.sleep(60)
                             continue
                 else:
-                    logger.info(ret['orderStatusName'])
+                    logger.info(jd_order_status)
 
             time.sleep(5)
         except Exception, e:

@@ -231,3 +231,10 @@ class HttpFirstTest(unittest.TestCase):
 
         resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
         print resp.text
+
+    def test_yichongbao_callback(self):
+        url = 'http://120.27.134.79:23300/hf_gezi/chargeChannelAction/notifyUrl.do'
+        data = {"trade_no": "20161214093920513THDCA00003", "success": "1", "partner_order_id": "LB011612141739200160", "sign": "2eeb0e36dc586e4c60058e536fc5aa21", "amount": 98, "t": "1481710131272"}
+        resp = requests.get(url,data)
+        print resp.url
+        print resp.text
