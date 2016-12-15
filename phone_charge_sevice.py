@@ -35,6 +35,7 @@ def get_account(uuid):
                 cookie = login.get_cookie()
                 logger.info('login success,cookie:%s' % cookie)
                 account['cookie'] = cookie
+                account['valid'] = 1
 
                 # h5_cookie = login.get_h5_cookie(cookie)
                 # logger.info('get h5 cookie:%s' % h5_cookie)
@@ -57,6 +58,9 @@ def get_account(uuid):
                         if resp.text == '1':
                             logger.info('success')
                             break
+                        else:
+                            time.sleep(60)
+                            continue
                     except Exception, e:
                         time.sleep(60)
                         continue
@@ -181,6 +185,7 @@ def phone_charge():
                 logger.info('get trade no:%s' % trade_no)
                 data = r.hgetall('order_platform:phone_charge:trade_no:%s' % trade_no)
                 logger.info('get trade data:%s' % data)
+                data['partner'] = json.loads(data['partner'])
 
                 if not data:  # trade data loss
                     save_order({'trade_no': trade_no, 'status': u'数据丢失'})
@@ -196,7 +201,10 @@ def phone_charge():
         data['status'] = '正在下单'
         data['partner_price'] = ''
         data['callback_status'] = ''
-        order_id = save_order(data)
+        if data.has_key('order_id'):
+            order_id = data['order_id']
+        else:
+            order_id = save_order(data)
 
         uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
         # data = {'mobile':'15763563256','parterner_id':'123654','amount':100,callback:''}
@@ -250,6 +258,23 @@ def phone_charge():
                 data['dxqids'] = resp['dxqInfos'][0]['id']
             else:
                 data['status'] = '没有优惠券'
+                while True:
+                    try:
+                        logger.error('account compon not found,send to server')
+                        account['valid_message'] = '没有优惠券'
+                        account['valid'] = 0
+                        resp = requests.post(base_data.JD_ACCOUNT_API_POST, json=account)
+                        logger.info('resp:%s' % resp.text)
+                        if resp.text == '1':
+                            logger.info('success')
+                            break
+                        else:
+                            time.sleep(60)
+                            continue
+                    except Exception, e:
+                        time.sleep(60)
+                        continue
+
                 callback_partner_and_save_order(data, 0, order_id)
                 continue
 
@@ -298,7 +323,7 @@ def sync_status_from_jd():
             resp = resp.json()
 
             for order in resp:
-                data = json.loads(order['data'])
+                data = order['data']
                 cookie = data['account']['cookie'].replace('"', '')
                 logger.info('get jd order status\n%s' % data['pay_task_id'].replace('"', ''))
                 uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
