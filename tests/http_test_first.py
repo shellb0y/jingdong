@@ -86,7 +86,7 @@ class HttpFirstTest(unittest.TestCase):
 
     def test_seach_train(self):
         url = 'http://train.m.jd.com/ticket/searchTickets.json'
-        data = {'ticketRequest.trainCode': 'G312', 'ticketRequest.trainDate': '1482508800000',
+        data = {'ticketRequest.trainCode': 'G3112', 'ticketRequest.trainDate': '1482508800000',
                 'ticketRequest.fromStation': 'IZQ', 'ticketRequest.toStation': 'CWQ',
                 'ticketRequest.fromStationName': u'广州南', 'ticketRequest.toStationName': u'长沙南'}
 

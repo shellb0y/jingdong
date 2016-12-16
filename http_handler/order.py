@@ -62,7 +62,7 @@ class Order:
 
         logger.info('seach ticket')
         tickets = self.seach_ticket(train)
-        if tickets:
+        if tickets.has_key('ticket'):
             start_time = tickets['ticket']['startTime']
         else:
             raise Exception('find out ticket faild')
