@@ -108,9 +108,9 @@ def place_order():
                     logger.info('ALL SUCCESS')
                     time.sleep(PLACEORDERINTERVAL)
                 else:
-                    logger.error('order place faild')
+                    raise Exception('order place faild')
             else:
-                logger.error('submit maybe faild')
+                raise  Exception('submit maybe faild')
         except requests.exceptions.ConnectionError,e:
             print 'adsl faild'
             adsl_service.reconnect()
