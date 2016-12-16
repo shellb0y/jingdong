@@ -73,6 +73,7 @@ print c.encode('hex')
 # else:
 #     print 'ping ok'
 
-import hashlib
-m= hashlib.md5('11111').hexdigest()
-print m
+if {} :
+    print 'yes'
+else:
+    print 'no'

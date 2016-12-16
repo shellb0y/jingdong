@@ -81,7 +81,7 @@ class Order:
         logger.debug('resp %s' % resp.text)
         resp_body = resp.json()
 
-        if resp_body['success']:
+        if resp_body and resp_body['success']:
             orderid = resp_body['orderId']
             data['orderid'] = orderid
 
