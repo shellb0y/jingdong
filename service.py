@@ -12,7 +12,7 @@ import urllib
 import auth
 import redis
 
-PLACEORDERINTERVAL = 5
+PLACEORDERINTERVAL = 20
 # FAILDWAITING = 180
 
 adsl_service = adsl.Adsl({"name": u"宽带连接".encode('gbk'),
@@ -51,13 +51,13 @@ def place_order():
             uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
             user_agent = base_data.get_user_agent()
 
-            while True:
-                adsl_service.reconnect()
-                return1 = os.system('ping baidu.com')
-                if return1:
-                    continue
-                else:
-                    break
+            # while True:
+            #     adsl_service.reconnect()
+            #     return1 = os.system('ping baidu.com')
+            #     if return1:
+            #         continue
+            #     else:
+            #         break
 
             login = http_handler.login.Login(username, password, uuid, user_agent)
             cookie = login.get_cookie()

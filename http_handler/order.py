@@ -60,6 +60,13 @@ class Order:
         else:
             raise Exception('seat type not support')
 
+        logger.info('seach ticket')
+        tickets = self.seach_ticket(train)
+        if tickets:
+            start_time = tickets['ticket']['startTime']
+        else:
+            raise Exception('find out ticket faild')
+
         data = {'account': '', 'trainDate': str(
             time.mktime(
                 time.strptime(train['data']['ticketsInfo'][0]['dptDate'], "%Y-%m-%d"))).replace('.', '') + '00',
@@ -72,7 +79,14 @@ class Order:
                 'passengerIds': passenger_ids,
                 'seatPrice': int(train['data']['ticketsInfo'][0]['ticketPrice'] * 100),
                 'fromStationCode': train['data']['ticketsInfo'][0]['dptStation'],
-                'cheCi': train['data']['ticketsInfo'][0]['coachNo']}
+                'cheCi': train['data']['ticketsInfo'][0]['coachNo'],
+                'trainTime': start_time,
+                'hasInsurance': False,
+                'insuranceCode': 0,
+                'hasInvoice': False,
+                'invoiceJson': {},
+                'isGrab': False
+                }
 
         encode_data = urllib.urlencode(data)
         logger.debug('POST %s \n%s' % (url, encode_data))
@@ -137,3 +151,30 @@ class Order:
             return {'erpOrderId': erpOrderId[0], 'onlinePayFee': onlinePayFee[0]}
         else:
             return None
+
+    def seach_ticket(self, train):
+        url = 'http://train.m.jd.com/ticket/searchTickets.json'
+        data = {'ticketRequest.trainCode': train['data']['ticketsInfo'][0]['coachNo'],
+                'ticketRequest.trainDate': str(
+                    time.mktime(
+                        time.strptime(train['data']['ticketsInfo'][0]['dptDate'], "%Y-%m-%d"))).replace('.', '') + '00',
+                'ticketRequest.fromStation': train['data']['ticketsInfo'][0]['dptStation'],
+                'ticketRequest.toStation': train['data']['ticketsInfo'][0]['arrStation'],
+                'ticketRequest.fromStationName': train['data']['ticketsInfo'][0]['departure'].encode("utf-8"),
+                'ticketRequest.toStationName': train['data']['ticketsInfo'][0]['destination'].encode("utf-8")}
+
+        headers = {'Host': 'train.m.jd.com',
+                   'Pragma': 'no-cache',
+                   'Cache-Control': 'no-cache',
+                   'Accept': 'application/json, text/javascript, */*; q=0.01',
+                   'Origin': 'http://train.m.jd.com',
+                   'X-Requested-With': 'XMLHttpRequest',
+                   'User-Agent': self.user_agent,
+                   'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                   'Referer': 'http://train.m.jd.com/ticket/site/s_1480089600000_%E5%8C%97%E4%BA%AC_BJP_%E4%B8%8A%E6%B5%B7_SHH_G5',
+                   'Accept-Encoding': 'gzip, deflate',
+                   'Accept-Language': 'zh-CN,en-US;q=0.8',
+                   'Cookie': self.cookie
+                   }
+        resp = requests.post(url, data=data, headers=headers)
+        return resp.json()
