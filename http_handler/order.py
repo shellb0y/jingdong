@@ -101,7 +101,7 @@ class Order:
 
             return data
         else:
-            raise Exception('generate order faild.\n%s', resp.text)
+            raise Exception('generate order faild.\n%s' % resp.text)
 
     def get_token(self, data):
         url = 'https://train.m.jd.com/bookSeat/book/s_%s_%s_%s_%s_%s_%s_%s' % (

@@ -72,8 +72,3 @@ print c.encode('hex')
 #     print 'ping fail'
 # else:
 #     print 'ping ok'
-
-if {} :
-    print 'yes'
-else:
-    print 'no'
