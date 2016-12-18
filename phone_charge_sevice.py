@@ -120,6 +120,7 @@ def save_order(data, id=0):
 
 
 def callback_partner_and_save_order(data, success, order_id, pc_cookie=''):
+    data['order_handler_complete_time'] = str(datetime.datetime.now())
     if success:
         while True:
             try:
@@ -198,6 +199,7 @@ def phone_charge():
             time.sleep(5)
             continue
 
+        data['order_handler_time'] = str(datetime.datetime.now())
         data['status'] = '正在下单'
         data['partner_price'] = ''
         data['callback_status'] = ''
@@ -323,6 +325,7 @@ def sync_status_from_jd():
             resp = resp.json()
 
             for order in resp:
+                order_callback_time = str(datetime.datetime.now())
                 data = order['data']
                 cookie = data['account']['cookie'].replace('"', '')
                 logger.info('get jd order status\n%s' % data['pay_task_id'].replace('"', ''))
@@ -344,7 +347,7 @@ def sync_status_from_jd():
 
                 jd_order_status = ret['rechargeOrder']['orderStatusName']
                 if jd_order_status == u'充值成功':
-                    partner = json.loads(data['partner'])
+                    partner = data['partner']
                     success = '1'
                     while True:
                         try:
@@ -378,9 +381,11 @@ def sync_status_from_jd():
                         try:
                             logger.info('callback order status')
                             data = {'order_id': data['pay_task_id'].replace('"', ''),
-                                    'status': jd_order_status, 'callback_status': callback_status}
-                            logger.debug('POST %s\n%s' % (base_data.ORDER_STATUS_API_POST, json.dumps(data)))
-                            resp = requests.post(base_data.ORDER_STATUS_API_POST,
+                                    'status': jd_order_status, 'callback_status': callback_status,
+                                    'order_callback_time': order_callback_time,
+                                    'order_callback_complete_time': str(datetime.datetime.now())}
+                            logger.debug('POST %s\n%s' % (base_data.ORDER_CALLBACK_STATUS_API_POST, json.dumps(data)))
+                            resp = requests.post(base_data.ORDER_CALLBACK_STATUS_API_POST,
                                                  json=data)
                             logger.info(resp.text)
                             break

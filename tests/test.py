@@ -66,9 +66,5 @@ b = 't+itDImrWSiR\/V6gD6ei8A=='
 c = base64.b64decode(b)
 print c.encode('hex')
 
-# import os
-# return1 = os.system('ping baidu.com')
-# if return1:
-#     print 'ping fail'
-# else:
-#     print 'ping ok'
+import datetime
+print str(datetime.datetime.now())
