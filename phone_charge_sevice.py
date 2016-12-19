@@ -317,87 +317,149 @@ def phone_charge():
 
 
 def sync_status_from_jd():
+    pool = redis.ConnectionPool(host='139.199.65.115', port=6379, db=0)
+    r = redis.Redis(connection_pool=pool)
     while True:
         try:
-            print '-----------------------'
-            logger.info('get order pay success')
-            resp = requests.get(base_data.ORDER_PAYSUCCESS_API_GET)
-            resp = resp.json()
+            print 'redis brpop'
+            result = r.brpop('order_platform:phone_charge:order_pay_success', 5)
+            if result:
+                id = result[1]
+                logger.info('get trade no or task id:%s' % id)
 
-            for order in resp:
-                order_callback_time = str(datetime.datetime.now())
-                data = order['data']
-                cookie = data['account']['cookie'].replace('"', '')
-                logger.info('get jd order status\n%s' % data['pay_task_id'].replace('"', ''))
-                uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
-                headers = {
-                    'Charset': 'UTF-8',
-                    'jdc-backup': cookie,
-                    'Connection': 'close',
-                    'Cookie': cookie,
-                    'User-Agent': 'okhttp/3.2.0',
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
-                body = {"orderId": data['jd_order_id'].replace('"', '')}
-                sign = auth.sign('queryPczOrderInfo', uuid, json.dumps(body))
-                url = 'http://api.m.jd.com/client.action?functionId=queryPczOrderInfo&clientVersion=5.3.0&build=36639&client=android&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
-                    uuid, sign[1], sign[0])
-                body = 'body=' + urllib.quote_plus(json.dumps(body)) + '&'
-                resp = requests.post(url, data=body, headers=headers)
-                ret = resp.json()
+                try:
+                    resp = requests.get(base_data.ORDER_API_GET + id)
+                    resp = resp.json()
 
-                jd_order_status = ret['rechargeOrder']['orderStatusName']
-                if jd_order_status == u'充值成功':
-                    partner = data['partner']
-                    success = '1'
-                    while True:
-                        try:
-                            logger.info('callback partner %s begin' % partner['name'])
-                            t = str(int(round(time.time() * 1000)))
-                            _data = {'amount': data['partner_price'],
-                                     'trade_no': data['trade_no'],
-                                     'success': success, 't': t,
-                                     'sign': hashlib.md5(
-                                         str(data['partner_price']) + partner[
-                                             'secret'] + success + t + data['trade_no']).hexdigest()}
-                            logger.debug('GET %s\n%s' % (data['callback'], json.dumps(_data)))
-                            resp = requests.get(urllib.unquote_plus(data['callback']), params=_data)
-                            logger.debug(resp.url)
-                            logger.info(resp.text)
-                            resp = resp.json()
-                            if resp['success'] == 1:
-                                logger.info('sucess')
-                                callback_status = u'回调成功'
-                            else:
-                                logger.warn('faild')
-                                callback_status = u'回调失败'
+                    if (resp):
+                        order = resp[0]['_data']
+                        order_sync_jd_status_time = str(datetime.datetime.now())
+                        cookie = order['account']['cookie'].replace('"', '')
+                        logger.info('get jd order status\n%s' % order['pay_task_id'].replace('"', ''))
+                        uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
+                        headers = {
+                            'Charset': 'UTF-8',
+                            'jdc-backup': cookie,
+                            'Connection': 'close',
+                            'Cookie': cookie,
+                            'User-Agent': 'okhttp/3.2.0',
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+                        body = {"orderId": order['jd_order_id'].replace('"', '')}
+                        sign = auth.sign('queryPczOrderInfo', uuid, json.dumps(body))
+                        url = 'http://api.m.jd.com/client.action?functionId=queryPczOrderInfo&clientVersion=5.3.0&build=36639&client=android&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+                            uuid, sign[1], sign[0])
+                        body = 'body=' + urllib.quote_plus(json.dumps(body)) + '&'
+                        resp = requests.post(url, data=body, headers=headers)
+                        ret = resp.json()
 
-                            break
-                        except Exception:
-                            logger.error(traceback.format_exc())
-                            data['callback_status'] = u'回调异常'
-                            continue
-
-                    while True:
-                        try:
-                            logger.info('callback order status')
-                            data = {'order_id': data['pay_task_id'].replace('"', ''),
-                                    'status': jd_order_status, 'callback_status': callback_status,
-                                    'order_callback_time': order_callback_time,
-                                    'order_callback_complete_time': str(datetime.datetime.now())}
-                            logger.debug('POST %s\n%s' % (base_data.ORDER_CALLBACK_STATUS_API_POST, json.dumps(data)))
-                            resp = requests.post(base_data.ORDER_CALLBACK_STATUS_API_POST,
-                                                 json=data)
-                            logger.info(resp.text)
-                            break
-                        except Exception, e:
-                            logger.error(traceback.format_exc())
-                            time.sleep(60)
-                            continue
-                else:
-                    logger.info(jd_order_status)
-
-            time.sleep(5)
+                        jd_order_status = ret['rechargeOrder']['orderStatusName']
+                        if jd_order_status == u'充值成功':
+                            r.lpush('order_platform:phone_charge:order_success', json.dumps({
+                                'trade_no': order['trade_no'],
+                                'partner': order['partner'],
+                                'callback': order['callback'],
+                                'success': 1,
+                                'amount': order['amount'],
+                                'partner_price': order['partner_price'],
+                                'order_sync_jd_status_time': order_sync_jd_status_time
+                            }))
+                        else:
+                            logger.info(jd_order_status)
+                    else:
+                        logger.error('cant find order %s' % id)
+                except Exception, e:
+                    logger.error(traceback.format_exc())
+                    time.sleep(60)
+                    continue
+            else:
+                continue
         except Exception, e:
-            logger.error(traceback.format_exc())
-            time.sleep(60)
+            logger.error(e.message)
+            time.sleep(5)
             continue
+
+# def sync_status_from_jd2():
+#     while True:
+#         try:
+#             print '-----------------------'
+#             logger.info('get order pay success')
+#             resp = requests.get(base_data.ORDER_PAYSUCCESS_API_GET)
+#             resp = resp.json()
+#
+#             for order in resp:
+#                 order_callback_time = str(datetime.datetime.now())
+#                 data = order['data']
+#                 cookie = data['account']['cookie'].replace('"', '')
+#                 logger.info('get jd order status\n%s' % data['pay_task_id'].replace('"', ''))
+#                 uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
+#                 headers = {
+#                     'Charset': 'UTF-8',
+#                     'jdc-backup': cookie,
+#                     'Connection': 'close',
+#                     'Cookie': cookie,
+#                     'User-Agent': 'okhttp/3.2.0',
+#                     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+#                 body = {"orderId": data['jd_order_id'].replace('"', '')}
+#                 sign = auth.sign('queryPczOrderInfo', uuid, json.dumps(body))
+#                 url = 'http://api.m.jd.com/client.action?functionId=queryPczOrderInfo&clientVersion=5.3.0&build=36639&client=android&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+#                     uuid, sign[1], sign[0])
+#                 body = 'body=' + urllib.quote_plus(json.dumps(body)) + '&'
+#                 resp = requests.post(url, data=body, headers=headers)
+#                 ret = resp.json()
+#
+#                 jd_order_status = ret['rechargeOrder']['orderStatusName']
+#                 if jd_order_status == u'充值成功':
+#                     partner = data['partner']
+#                     success = '1'
+#                     while True:
+#                         try:
+#                             logger.info('callback partner %s begin' % partner['name'])
+#                             t = str(int(round(time.time() * 1000)))
+#                             _data = {'amount': data['partner_price'],
+#                                      'trade_no': data['trade_no'],
+#                                      'success': success, 't': t,
+#                                      'sign': hashlib.md5(
+#                                          str(data['partner_price']) + partner[
+#                                              'secret'] + success + t + data['trade_no']).hexdigest()}
+#                             logger.debug('GET %s\n%s' % (data['callback'], json.dumps(_data)))
+#                             resp = requests.get(urllib.unquote_plus(data['callback']), params=_data)
+#                             logger.debug(resp.url)
+#                             logger.info(resp.text)
+#                             resp = resp.json()
+#                             if resp['success'] == 1:
+#                                 logger.info('sucess')
+#                                 callback_status = u'回调成功'
+#                             else:
+#                                 logger.warn('faild')
+#                                 callback_status = u'回调失败'
+#
+#                             break
+#                         except Exception:
+#                             logger.error(traceback.format_exc())
+#                             data['callback_status'] = u'回调异常'
+#                             continue
+#
+#                     while True:
+#                         try:
+#                             logger.info('callback order status')
+#                             data = {'order_id': data['pay_task_id'].replace('"', ''),
+#                                     'status': jd_order_status, 'callback_status': callback_status,
+#                                     'order_callback_time': order_callback_time,
+#                                     'order_callback_complete_time': str(datetime.datetime.now())}
+#                             logger.debug('POST %s\n%s' % (base_data.ORDER_CALLBACK_STATUS_API_POST, json.dumps(data)))
+#                             resp = requests.post(base_data.ORDER_CALLBACK_STATUS_API_POST,
+#                                                  json=data)
+#                             logger.info(resp.text)
+#                             break
+#                         except Exception, e:
+#                             logger.error(traceback.format_exc())
+#                             time.sleep(60)
+#                             continue
+#                 else:
+#                     logger.info(jd_order_status)
+#
+#             time.sleep(5)
+#         except Exception, e:
+#             logger.error(traceback.format_exc())
+#             time.sleep(60)
+#             continue
