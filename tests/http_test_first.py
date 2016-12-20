@@ -23,7 +23,7 @@ class HttpFirstTest(unittest.TestCase):
         uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12)
         print uuid
 
-        data = auth.get_req_data('jd_600c09353d777', 'mozhisi5245', uuid)
+        data = auth.get_req_data('18445855491', 'znvd9h', uuid)
         req = requests.post(url, data=data, headers={'User-Agent': 'Android WJLoginSDK 1.4.2'})
         resp = req.text
         print resp
@@ -258,3 +258,5 @@ class HttpFirstTest(unittest.TestCase):
 
         resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
         print resp.text
+
+    # def test_seach_

@@ -234,12 +234,13 @@ def phone_charge():
             data['providerName'] = resp['providerName']
             data['areaName'] = resp['areaName']
 
-            if data['providerName'] == u'移动':
-                data['partner_price'] = 98
-            elif data['providerName'] == u'联通':
-                data['partner_price'] = 98
-            else:
-                data['partner_price'] = 97
+            data['partner_price'] = data['account']['price']['providerName']
+            # if data['providerName'] == u'移动':
+            #     data['partner_price'] = 98
+            # elif data['providerName'] == u'联通':
+            #     data['partner_price'] = 98
+            # else:
+            #     data['partner_price'] = 97
 
             sku = filter(lambda s: s['facePrice'] == str(data['amount']), resp['skuList'])
             if len(sku) == 0:
@@ -332,10 +333,10 @@ def sync_status_from_jd():
                     resp = resp.json()
 
                     if (resp):
-                        order = resp[0]['_data']
+                        order = json.loads(resp[0]['_data'])
                         order_sync_jd_status_time = str(datetime.datetime.now())
                         cookie = order['account']['cookie'].replace('"', '')
-                        logger.info('get jd order status\n%s' % order['pay_task_id'].replace('"', ''))
+                        logger.info('get jd order status:%s' % order['pay_task_id'])
                         uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
                         headers = {
                             'Charset': 'UTF-8',
@@ -349,22 +350,34 @@ def sync_status_from_jd():
                         url = 'http://api.m.jd.com/client.action?functionId=queryPczOrderInfo&clientVersion=5.3.0&build=36639&client=android&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
                             uuid, sign[1], sign[0])
                         body = 'body=' + urllib.quote_plus(json.dumps(body)) + '&'
-                        resp = requests.post(url, data=body, headers=headers)
-                        ret = resp.json()
+                        while True:
+                            resp = requests.post(url, data=body, headers=headers)
+                            ret = resp.json()
 
-                        jd_order_status = ret['rechargeOrder']['orderStatusName']
-                        if jd_order_status == u'充值成功':
-                            r.lpush('order_platform:phone_charge:order_success', json.dumps({
-                                'trade_no': order['trade_no'],
-                                'partner': order['partner'],
-                                'callback': order['callback'],
-                                'success': 1,
-                                'amount': order['amount'],
-                                'partner_price': order['partner_price'],
-                                'order_sync_jd_status_time': order_sync_jd_status_time
-                            }))
-                        else:
+                            jd_order_status = ret['rechargeOrder']['orderStatusName']
                             logger.info(jd_order_status)
+                            if jd_order_status == u'充值成功':
+                                logger.info('send to queue order_platform:phone_charge:order_success')
+                                r.lpush('order_platform:phone_charge:order_success', json.dumps({
+                                    'trade_no': order['trade_no'],
+                                    'partner': order['partner'],
+                                    'callback': order['callback'],
+                                    'success': 1,
+                                    'account_id':order['account']['account_id'],
+                                    'amount': order['amount'],
+                                    'partner_price': order['partner_price'],
+                                    'order_sync_jd_status_time': order_sync_jd_status_time
+                                }))
+                                break
+                            elif jd_order_status == u'等待付款':
+                                logger.info('send to queue order_platform:phone_charge:order_faild')
+                                r.lpush('order_platform:phone_charge:order_faild', json.dumps(
+                                    {'trade_no': order['trade_no'], 'order_faild_time': order_sync_jd_status_time}))
+                                break
+                            else:
+                                logger.info(jd_order_status)
+                                time.sleep(5)
+                                continue
                     else:
                         logger.error('cant find order %s' % id)
                 except Exception, e:
