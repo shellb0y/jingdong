@@ -126,11 +126,18 @@ def get_cookie(resp_data):
 
 
 if __name__ == "__main__":
-    req_data = get_req_data('jd_60aaf2f598861', 'e4e333', '')
-    print  req_data
+    # req_data = get_req_data('jd_60aaf2f598861', 'e4e333', '')
+    # print  req_data
 
     resp = 'aHLnhbKM9oBtKHz0nVBtCtRI5vdKL0kEJSj85AR8sXiImjeOMj8xF+UhTWTXBgO4XV2QitZNleNzLP34rB0uAFK09+lzAsyuAhgCwXGz5YwkQ4hpnbx8vqwX1ZGaRkE590kX4nsrDFtOFqNklC1FStEKZBNQNrTd1J1hlDqudi7sxmZgh48TLno39B+dPuhP7PpKIkO9JAdoHP9KuVyoWA=='
     cookie = get_cookie(resp)
+    print  cookie
+
+    pin = ''.join(map(lambda x: chr(int(x, 16)), hex_format_space('00BF000000000000000100000001000000016256F6710002000600640111770003006F000100770013756E737570706F727465642076657273696F6E0054E8AFB7E58D87E7BAA7E887B3E69C80E696B0E78988E69CACE4BDBFE794A8EFBC88E58D87E7BAA7E8B7AFE5BE84EFBC9AE68891E79A843EE8AEBEE7BDAE3EE585B3E4BA8E3EE6A380E6B58BE69BB4E696B0EFBC89001E0029687474703A2F2F73746F726167652E6A642E636F6D2F6A646D6F62696C652F4A444D616C6C2E61706B').split(' ')))
+    print pin
+
+    resp = 'FY5WLgdOFdZDaX7u/pQPPeKKw+WTzSEl7uPzbDhJchobl2sKS/K+w3Et5bCdrKCRr4qkgzH2VTrNsK2Mw2GtBE0mF7984yEDeAlOSKDBmyWZzzW+n4WxEwr/ASP+7avpPnBKKl6gzPynsoIgCE6nKPej/SCAPtUnQkLSDKFFiyw7aPmsTw+Iqti0+C0AZ/s1mr/XUoWnSkfDBY23iK9GxuNhj4cFHo+J73CNqGtC4/Lp3rxenThbLw=='
+    cookie = get_resp_data(resp)
     print  cookie
 
     sign_data = sign('newUserInfo', base_data.get_random_number() + '-' + base_data.get_random_letter_number(12),

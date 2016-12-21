@@ -363,8 +363,9 @@ def sync_status_from_jd():
                                     'partner': order['partner'],
                                     'callback': order['callback'],
                                     'success': 1,
-                                    'account_id':order['account']['account_id'],
+                                    'account_id': order['account']['account_id'],
                                     'amount': order['amount'],
+                                    'discount': order['discount'],
                                     'partner_price': order['partner_price'],
                                     'order_sync_jd_status_time': order_sync_jd_status_time
                                 }))
