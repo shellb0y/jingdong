@@ -27,43 +27,43 @@ def get_account(uuid):
             account_json = resp.json()
             account = json.loads(account_json['_data'])
             account['account_id'] = account_json['account_id']
-            logger.info('get jd account:%s,%s' % (account['username'], account['password']))
-            user_agent = base_data.get_user_agent()
-            # adsl_service.reconnect()
-            try:
-                login = http_handler.login.Login(account['username'], account['password'], uuid, user_agent)
-                cookie = login.get_cookie()
-                logger.info('login success,cookie:%s' % cookie)
-                account['cookie'] = cookie
-                account['valid'] = 1
-
-                # h5_cookie = login.get_h5_cookie(cookie)
-                # logger.info('get h5 cookie:%s' % h5_cookie)
-                #
-                # cookie = 'pt_key=%s;pwdt_id=%s;sid=%s;guid=%s;pt_pin=%s;mobilev=%s' % (
-                #     h5_cookie['pt_key'], h5_cookie['pwdt_id'], h5_cookie['sid'], h5_cookie['guid'],
-                #     h5_cookie['pt_pin'], h5_cookie['mobilev'])
-                # account['h5_cookie'] = cookie
-                # account['valid'] = 1
-                return account
-            except Exception, e:
-                account['valid'] = 0
-                logger.debug('POST %s\n%s' % (base_data.JD_ACCOUNT_API_POST, json.dumps(account)))
-
-                while True:
-                    try:
-                        logger.error('account invalid,send to server')
-                        resp = requests.post(base_data.JD_ACCOUNT_API_POST, json=account)
-                        logger.info('resp:%s' % resp.text)
-                        if resp.text == '1':
-                            logger.info('success')
-                            break
-                        else:
-                            time.sleep(60)
-                            continue
-                    except Exception, e:
-                        time.sleep(60)
-                        continue
+            # logger.info('get jd account:%s,%s' % (account['username'], account['password']))
+            # user_agent = base_data.get_user_agent()
+            # # adsl_service.reconnect()
+            # try:
+            #     login = http_handler.login.Login(account['username'], account['password'], uuid, user_agent)
+            #     cookie = login.get_cookie()
+            #     logger.info('login success,cookie:%s' % cookie)
+            #     account['cookie'] = cookie
+            #     account['valid'] = 1
+            #
+            #     # h5_cookie = login.get_h5_cookie(cookie)
+            #     # logger.info('get h5 cookie:%s' % h5_cookie)
+            #     #
+            #     # cookie = 'pt_key=%s;pwdt_id=%s;sid=%s;guid=%s;pt_pin=%s;mobilev=%s' % (
+            #     #     h5_cookie['pt_key'], h5_cookie['pwdt_id'], h5_cookie['sid'], h5_cookie['guid'],
+            #     #     h5_cookie['pt_pin'], h5_cookie['mobilev'])
+            #     # account['h5_cookie'] = cookie
+            #     # account['valid'] = 1
+            return account
+            # except Exception, e:
+            #     account['valid'] = 0
+            #     logger.debug('POST %s\n%s' % (base_data.JD_ACCOUNT_API_POST, json.dumps(account)))
+            #
+            #     while True:
+            #         try:
+            #             logger.error('account invalid,send to server')
+            #             resp = requests.post(base_data.JD_ACCOUNT_API_POST, json=account)
+            #             logger.info('resp:%s' % resp.text)
+            #             if resp.text == '1':
+            #                 logger.info('success')
+            #                 break
+            #             else:
+            #                 time.sleep(60)
+            #                 continue
+            #         except Exception, e:
+            #             time.sleep(60)
+            #             continue
         except Exception, e:
             logger.error('get jd account faild')
             time.sleep(60)
@@ -234,7 +234,7 @@ def phone_charge():
             data['providerName'] = resp['providerName']
             data['areaName'] = resp['areaName']
 
-            data['partner_price'] = data['account']['price']['providerName']
+            data['partner_price'] = data['partner']['price'][resp['providerName']]
             # if data['providerName'] == u'移动':
             #     data['partner_price'] = 98
             # elif data['providerName'] == u'联通':
