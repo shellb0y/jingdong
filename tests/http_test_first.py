@@ -16,7 +16,7 @@ class HttpFirstTest(unittest.TestCase):
         self.pwd = 'mozhisi5245'
         self.uuid = '823466913984714-pgveoceqje9l'
         self.user_agent = 'Mozilla/5.0 (Symbian/3; Series60/5.2 NokiaN8-00/012.002; Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/533.4 (KHTML, like Gecko) NokiaBrowser/7.3.0 Mobile Safari/533.4 3gpp-gba'
-        self.cookie = 'pin=jd_600c09353d777; wskey=AAFYU4VqAEDHL-Uz-VTuP7WX5vLcyaMVzHhvSPGASANmn3-ubO61KqKwKgSx10xqtueJAWifv2sHeOCEbTtQ23IElpkcp1du; whwswswws=00'
+        self.cookie = 'pin=jd%5F697dcc3d56ec6; wskey=AAFYXfeDAEDeb2YHlkk9hbqKcxhZlbFD_7jvQjFdO1e57gzEK9JgIUxCE1_geZDl9vTgy7xjFmR8cPUz0CTfVyc3icMMf0a4; whwswswws=; uuid=010304341061004-223146AE26AE;'
 
     def login_test(self):
         url = 'http://wlogin.m.jd.com/applogin_v2'

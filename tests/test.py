@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # import ctypes
 #
 # dll = ctypes.windll.LoadLibrary('libs/sign5.3.0.dll')
@@ -68,3 +69,5 @@ print c.encode('hex')
 
 import datetime
 print str(datetime.datetime.now())
+
+print u'充值失败' in u'充值失败，等待退款'

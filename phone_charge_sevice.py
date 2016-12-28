@@ -18,56 +18,69 @@ import datetime
 def get_account(uuid):
     logger.info('get jd account')
     url = base_data.JD_ACCOUNT_API_GET
-    while True:
-        try:
-            logger.debug('GET %s' % url)
-            resp = requests.get(url)
-            logger.debug(resp.text)
 
-            account_json = resp.json()
-            account = json.loads(account_json['_data'])
-            account['account_id'] = account_json['account_id']
-            # logger.info('get jd account:%s,%s' % (account['username'], account['password']))
-            # user_agent = base_data.get_user_agent()
-            # # adsl_service.reconnect()
-            # try:
-            #     login = http_handler.login.Login(account['username'], account['password'], uuid, user_agent)
-            #     cookie = login.get_cookie()
-            #     logger.info('login success,cookie:%s' % cookie)
-            #     account['cookie'] = cookie
-            #     account['valid'] = 1
-            #
-            #     # h5_cookie = login.get_h5_cookie(cookie)
-            #     # logger.info('get h5 cookie:%s' % h5_cookie)
-            #     #
-            #     # cookie = 'pt_key=%s;pwdt_id=%s;sid=%s;guid=%s;pt_pin=%s;mobilev=%s' % (
-            #     #     h5_cookie['pt_key'], h5_cookie['pwdt_id'], h5_cookie['sid'], h5_cookie['guid'],
-            #     #     h5_cookie['pt_pin'], h5_cookie['mobilev'])
-            #     # account['h5_cookie'] = cookie
-            #     # account['valid'] = 1
-            return account
-            # except Exception, e:
-            #     account['valid'] = 0
-            #     logger.debug('POST %s\n%s' % (base_data.JD_ACCOUNT_API_POST, json.dumps(account)))
-            #
-            #     while True:
-            #         try:
-            #             logger.error('account invalid,send to server')
-            #             resp = requests.post(base_data.JD_ACCOUNT_API_POST, json=account)
-            #             logger.info('resp:%s' % resp.text)
-            #             if resp.text == '1':
-            #                 logger.info('success')
-            #                 break
-            #             else:
-            #                 time.sleep(60)
-            #                 continue
-            #         except Exception, e:
-            #             time.sleep(60)
-            #             continue
-        except Exception, e:
-            logger.error('get jd account faild')
-            time.sleep(60)
-            continue
+    try:
+        logger.debug('GET %s' % url)
+        resp = requests.get(url)
+        logger.debug(resp.text)
+
+        account_json = resp.json()
+        account = json.loads(account_json['_data'])
+        account['account_id'] = account_json['account_id']
+        return account
+    except Exception, e:
+        logger.error('get jd account faild')
+        return None
+        # while True:
+        #     try:
+        #         logger.debug('GET %s' % url)
+        #         resp = requests.get(url)
+        #         logger.debug(resp.text)
+        #
+        #         account_json = resp.json()
+        #         account = json.loads(account_json['_data'])
+        #         account['account_id'] = account_json['account_id']
+        #         logger.info('get jd account:%s,%s' % (account['username'], account['password']))
+        #         user_agent = base_data.get_user_agent()
+        #         # adsl_service.reconnect()
+        #         try:
+        #             login = http_handler.login.Login(account['username'], account['password'], uuid, user_agent)
+        #             cookie = login.get_cookie()
+        #             logger.info('login success,cookie:%s' % cookie)
+        #             account['cookie'] = cookie
+        #             account['valid'] = 1
+        #
+        #             # h5_cookie = login.get_h5_cookie(cookie)
+        #             # logger.info('get h5 cookie:%s' % h5_cookie)
+        #             #
+        #             # cookie = 'pt_key=%s;pwdt_id=%s;sid=%s;guid=%s;pt_pin=%s;mobilev=%s' % (
+        #             #     h5_cookie['pt_key'], h5_cookie['pwdt_id'], h5_cookie['sid'], h5_cookie['guid'],
+        #             #     h5_cookie['pt_pin'], h5_cookie['mobilev'])
+        #             # account['h5_cookie'] = cookie
+        #             # account['valid'] = 1
+        #             return account
+        #         except Exception, e:
+        #             account['valid'] = 0
+        #             logger.debug('POST %s\n%s' % (base_data.JD_ACCOUNT_API_POST, json.dumps(account)))
+        #
+        #             while True:
+        #                 try:
+        #                     logger.error('account invalid,send to server')
+        #                     resp = requests.post(base_data.JD_ACCOUNT_API_POST, json=account)
+        #                     logger.info('resp:%s' % resp.text)
+        #                     if resp.text == '1':
+        #                         logger.info('success')
+        #                         break
+        #                     else:
+        #                         time.sleep(60)
+        #                         continue
+        #                 except Exception, e:
+        #                     time.sleep(60)
+        #                     continue
+        #     except Exception, e:
+        #         logger.error('get jd account faild')
+        #         time.sleep(60)
+        #         continue
 
 
 def des_encryption(mobile):
@@ -172,7 +185,7 @@ def callback_partner_and_save_order(data, success, order_id, pc_cookie=''):
 
 
 def phone_charge():
-    pool = redis.ConnectionPool(host='139.199.65.115', port=6379, db=0)
+    pool = redis.ConnectionPool(host='139.199.65.115', port=6379, db=0, password='melodicdeath')
     r = redis.Redis(connection_pool=pool)
     while True:
         order_id = 0
@@ -212,6 +225,13 @@ def phone_charge():
         # data = {'mobile':'15763563256','parterner_id':'123654','amount':100,callback:''}
         mobile = des_encryption(data['mobile'])
         account = get_account(uuid)
+
+        if not account:
+            r.set('order_platform:switch:order_accpet', 0)
+            data['status'] = '下单失败'
+            data['err'] = '账号不足'
+            callback_partner_and_save_order(data, 0, order_id)
+            continue
 
         data['account'] = account
         pc_cookie = account['pc_cookie']
@@ -318,9 +338,10 @@ def phone_charge():
 
 
 def sync_status_from_jd():
-    pool = redis.ConnectionPool(host='139.199.65.115', port=6379, db=0)
+    pool = redis.ConnectionPool(host='139.199.65.115', port=6379, db=0, password='melodicdeath')
     r = redis.Redis(connection_pool=pool)
     while True:
+        retry = 0
         try:
             print 'redis brpop'
             result = r.brpop('order_platform:phone_charge:order_pay_success', 5)
@@ -354,31 +375,48 @@ def sync_status_from_jd():
                             resp = requests.post(url, data=body, headers=headers)
                             ret = resp.json()
 
+                            print ret
                             jd_order_status = ret['rechargeOrder']['orderStatusName']
                             logger.info(jd_order_status)
                             if jd_order_status == u'充值成功':
                                 logger.info('send to queue order_platform:phone_charge:order_success')
-                                r.lpush('order_platform:phone_charge:order_success', json.dumps({
-                                    'trade_no': order['trade_no'],
-                                    'partner': order['partner'],
-                                    'callback': order['callback'],
-                                    'success': 1,
-                                    'account_id': order['account']['account_id'],
-                                    'amount': order['amount'],
-                                    'discount': order['discount'],
-                                    'partner_price': order['partner_price'],
-                                    'order_sync_jd_status_time': order_sync_jd_status_time
-                                }))
+                                order['order_sync_jd_status_time']= order_sync_jd_status_time
+                                r.lpush('order_platform:phone_charge:order_success',json.dumps(order))
+                                # r.lpush('order_platform:phone_charge:order_success', json.dumps({
+                                #     'trade_no': order['trade_no'],
+                                #     'partner': order['partner'],
+                                #     'callback': order['callback'],
+                                #     'success': 1,
+                                #     'account_id': order['account']['account_id'],
+                                #     'amount': order['amount'],
+                                #     'discount': order['discount'],
+                                #     'partner_price': order['partner_price'],
+                                #     'order_sync_jd_status_time': order_sync_jd_status_time
+                                # }))
+                                # r.lpush('order_platform:phone_charge:order_success', json.dumps({
+                                #     'trade_no': order['trade_no'],
+                                #     'partner': order['partner'],
+                                #     'callback': order['callback'],
+                                #     'success': 1,
+                                #     'account_id': order['account']['account_id'],
+                                #     'amount': order['amount'],
+                                #     'discount': order['discount'],
+                                #     'partner_price': order['partner_price'],
+                                #     'order_sync_jd_status_time': order_sync_jd_status_time
+                                # }))
                                 break
-                            elif jd_order_status == u'等待付款':
+                            elif jd_order_status == u'等待付款' or u'充值失败' in jd_order_status.index:
                                 logger.info('send to queue order_platform:phone_charge:order_faild')
                                 r.lpush('order_platform:phone_charge:order_faild', json.dumps(
                                     {'trade_no': order['trade_no'], 'order_faild_time': order_sync_jd_status_time}))
                                 break
                             else:
-                                logger.info(jd_order_status)
-                                time.sleep(5)
-                                continue
+                                if ++retry < 5:
+                                    time.sleep(5)
+                                    continue
+                                else:
+                                    logger.info('timeout,send to queue order_platform:phone_charge:order_pay_success')
+                                    r.lpush('order_platform:phone_charge:order_pay_success', order['trade_no'])
                     else:
                         logger.error('cant find order %s' % id)
                 except Exception, e:

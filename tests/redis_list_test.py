@@ -3,7 +3,7 @@ import json
 
 
 def main():
-    pool = redis.ConnectionPool(host='139.199.65.115', port=6379, db=0)
+    pool = redis.ConnectionPool(host='139.199.65.115', port=6379, db=0,password='melodicdeath')
     r = redis.Redis(connection_pool=pool)
     # while 1:
     #     result = r.brpop('order_platform:phone_charge:order', 5)
