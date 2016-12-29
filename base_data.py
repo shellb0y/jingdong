@@ -11,10 +11,12 @@ ron = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
 ORDER_PLATFORM_HOST = 'http://192.168.3.113:3000/api'
 ORDER_SAVE_API_POST = '%s/order' % ORDER_PLATFORM_HOST
 ORDER_API_GET = '%s/order/' % ORDER_PLATFORM_HOST
+ORDER_SETSTATUS_API_POST = '%s/order/status' % ORDER_PLATFORM_HOST
 ORDER_CALLBACK_STATUS_API_POST = '%s/order/callback/status' % ORDER_PLATFORM_HOST
 JD_ACCOUNT_API_GET = '%s/account/jd/phone_charge' % ORDER_PLATFORM_HOST
 JD_ACCOUNT_API_POST = '%s/account' % ORDER_PLATFORM_HOST
 ORDER_PAYSUCCESS_API_GET = '%s/order/paysuccess' % ORDER_PLATFORM_HOST
+
 
 def get_random_letter_number(n=16):
     token = []
@@ -120,4 +122,4 @@ def get_user_agent():
         'Mozilla/5.0 (SymbianOS/9.4; U; Series60/5.0 Nokia5800d-1/21.0.025; Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/413 (KHTML, like Gecko) Safari/413',
         'Mozilla/5.0 (SymbianOS/9.4; Series60/5.0 NokiaN97-1/12.0.024; Profile/MIDP-2.1 Configuration/CLDC-1.1; en-us) AppleWebKit/525 (KHTML, like Gecko) BrowserNG/7.1.12344',
     ]
-    return agents[random.randint(0, len(agents)-1)]
+    return agents[random.randint(0, len(agents) - 1)]

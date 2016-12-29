@@ -70,4 +70,11 @@ print c.encode('hex')
 import datetime
 print str(datetime.datetime.now())
 
-print u'充值失败' in u'充值失败，等待退款'
+import time
+_from = int(time.mktime(time.strptime('2016-12-20 14:50:00','%Y-%m-%d %H:%M:%S')))
+t = time.time()
+_to = int(t)
+print  _to-_from < 15*60
+
+i=1
+print ++i
