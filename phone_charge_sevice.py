@@ -346,76 +346,71 @@ def sync_status_from_jd():
             print 'redis brpop'
             result = r.brpop('order_platform:phone_charge:order_pay_success', 5)
             if result:
-                id = result[1]
-                logger.info('get trade no or task id:%s' % id)
+                resp = result[1]
+                logger.info('get order:%s' % resp)
 
-                try:
-                    resp = requests.get(base_data.ORDER_API_GET + id)
-                    resp = resp.json()
+                # resp = requests.get(base_data.ORDER_API_GET + id)
+                # resp = resp.json()
+                if (resp):
+                    order = json.loads(resp)
+                    order_sync_jd_status_time = str(datetime.datetime.now())
+                    cookie = order['account']['cookie']
+                    logger.info('get jd order status:%s' % order['pay_task_id'])
+                    uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
+                    headers = {
+                        'Charset': 'UTF-8',
+                        'jdc-backup': cookie,
+                        'Connection': 'close',
+                        'Cookie': cookie,
+                        'User-Agent': 'okhttp/3.2.0',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+                    body = {"orderId": order['jd_order_id']}
+                    sign = auth.sign('queryPczOrderInfo', uuid, json.dumps(body))
+                    url = 'http://api.m.jd.com/client.action?functionId=queryPczOrderInfo&clientVersion=5.3.0&build=36639&client=android&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+                        uuid, sign[1], sign[0])
+                    body = 'body=' + urllib.quote_plus(json.dumps(body)) + '&'
+                    while True:
+                        resp = requests.post(url, data=body, headers=headers)
+                        ret = resp.json()
 
-                    if (resp):
-                        order = json.loads(resp[0]['_data'])
-                        order_sync_jd_status_time = str(datetime.datetime.now())
-                        cookie = order['account']['cookie'].replace('"', '')
-                        logger.info('get jd order status:%s' % order['pay_task_id'])
-                        uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
-                        headers = {
-                            'Charset': 'UTF-8',
-                            'jdc-backup': cookie,
-                            'Connection': 'close',
-                            'Cookie': cookie,
-                            'User-Agent': 'okhttp/3.2.0',
-                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
-                        body = {"orderId": order['jd_order_id'].replace('"', '')}
-                        sign = auth.sign('queryPczOrderInfo', uuid, json.dumps(body))
-                        url = 'http://api.m.jd.com/client.action?functionId=queryPczOrderInfo&clientVersion=5.3.0&build=36639&client=android&screen=1920*1080&partner=waps007&uuid=%s&area=1_0_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
-                            uuid, sign[1], sign[0])
-                        body = 'body=' + urllib.quote_plus(json.dumps(body)) + '&'
-                        while True:
-                            resp = requests.post(url, data=body, headers=headers)
-                            ret = resp.json()
-
-                            print ret
-                            jd_order_status = ret['rechargeOrder']['orderStatusName']
-                            logger.info(jd_order_status)
-                            if jd_order_status == u'充值成功':
-                                logger.info('send to queue order_platform:phone_charge:order_success')
-                                order['order_sync_jd_status_time'] = order_sync_jd_status_time
-                                r.lpush('order_platform:phone_charge:order_success', json.dumps(order))
-                                break
-                            elif jd_order_status == u'等待付款' or u'充值失败' in jd_order_status:
-                                logger.info(
-                                    'lpush %s to queue order_platform:phone_charge:order_faild' % order['trade_no'])
-                                r.lpush('order_platform:phone_charge:order_faild', json.dumps(
-                                    {'trade_no': order['trade_no'], 'order_faild_time': order_sync_jd_status_time}))
-                                break
-                            else:
-                                pay_callback_time = int(
-                                    time.mktime(time.strptime(order['pay_callback_time'], '%Y-%m-%d %H:%M:%S')))
-                                t = int(time.time())
-                                if t - pay_callback_time < 15 * 60:
-                                    retry += 1
-                                    if retry < 5:
-                                        time.sleep(5)
-                                        continue
-                                    else:
-                                        logger.info(
-                                            'timeout,lpush %s  to queue order_platform:phone_charge:order_pay_success' %
-                                            order['trade_no'])
-                                        r.lpush('order_platform:phone_charge:order_pay_success', order['trade_no'])
-                                        break
+                        print ret
+                        jd_order_status = ret['rechargeOrder']['orderStatusName']
+                        logger.info(jd_order_status)
+                        if jd_order_status == u'充值成功':
+                            logger.info('send to queue order_platform:phone_charge:order_success')
+                            order['order_sync_jd_status_time'] = order_sync_jd_status_time
+                            r.lpush('order_platform:phone_charge:order_success', json.dumps(order))
+                            break
+                        elif jd_order_status == u'等待付款' or u'充值失败' in jd_order_status:
+                            logger.info(
+                                'lpush %s to queue order_platform:phone_charge:order_faild' % order['trade_no'])
+                            r.lpush('order_platform:phone_charge:order_faild', json.dumps(
+                                {'trade_no': order['trade_no'], 'order_faild_time': order_sync_jd_status_time}))
+                            break
+                        else:
+                            pay_callback_time = int(
+                                time.mktime(time.strptime(order['pay_callback_time'], '%Y-%m-%d %H:%M:%S')))
+                            t = int(time.time())
+                            if t - pay_callback_time < 15 * 60:
+                                retry += 1
+                                if retry < 2:
+                                    time.sleep(5)
+                                    # time.sleep(2)
+                                    continue
                                 else:
-                                    logger.info('charge timeout and need customer service verifies,set status')
-                                    resp = requests.post(base_data.ORDER_SETSTATUS_API_POST,
-                                                         data={'order_id': order['pay_task_id'], 'status': '超时待人工核实'})
-                                    logger.info(resp.text)
+                                    logger.info(
+                                        'timeout,lpush %s  to queue order_platform:phone_charge:order_pay_success' %
+                                        order['trade_no'])
+                                    r.lpush('order_platform:phone_charge:order_pay_success', order['trade_no'])
                                     break
-                    else:
-                        logger.error('cant find order %s' % id)
-                except Exception, e:
-                    logger.error(traceback.format_exc())
-                    time.sleep(60)
-                    continue
+                            else:
+                                logger.info('charge timeout and need customer service verifies,set status')
+                                resp = requests.post(base_data.ORDER_SETSTATUS_API_POST,
+                                                     data={'order_id': order['trade_no'], 'status': '超时待人工核实'})
+                                logger.info(resp.text)
+                                break
+                else:
+                    logger.error('cant find order %s' % id)
             else:
                 continue
         except Exception, e:
