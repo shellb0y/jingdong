@@ -15,7 +15,7 @@ config = ConfigParser.ConfigParser()
 extra = {
     # 'host': 'unknow',
     'program': 'jingdong',
-    'device_id':'unkown'
+    'device_id': 'unkown'
 }
 
 try:
@@ -27,18 +27,29 @@ except Exception, e:
     pass
 
 
-def debug(msg):
+def debug(msg, key='', program=''):
+    extra['key'] = key
+    if program:
+        extra['program'] = program
     logger.debug(msg, extra=extra)
 
 
-def info(msg):
+def info(msg, key='', program=''):
+    extra['key'] = key
+    if program:
+        extra['program'] = program
     logger.info(msg, extra=extra)
 
 
-def warn(msg):
+def warn(msg, key='', program=''):
+    extra['key'] = key
+    if program:
+        extra['program'] = program
     logger.warn(msg, extra=extra)
 
 
-def error(msg):
+def error(msg, key='', program=''):
+    extra['key'] = key
+    if program:
+        extra['program'] = program
     logger.error(msg, extra=extra)
-

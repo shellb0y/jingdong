@@ -347,7 +347,7 @@ def sync_status_from_jd():
             result = r.brpop('order_platform:phone_charge:order_pay_success', 5)
             if result:
                 resp = result[1]
-                logger.info('get order:%s' % resp)
+                logger.info('get order:%s' % resp, program='sync_status_from_jd')
 
                 # resp = requests.get(base_data.ORDER_API_GET + id)
                 # resp = resp.json()
@@ -355,7 +355,7 @@ def sync_status_from_jd():
                     order = json.loads(resp)
                     order_sync_jd_status_time = str(datetime.datetime.now())
                     cookie = order['account']['cookie']
-                    logger.info('get jd order status:%s' % order['pay_task_id'])
+                    logger.info('get status', order['trade_no'], 'sync_status_from_jd')
                     uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
                     headers = {
                         'Charset': 'UTF-8',
@@ -372,18 +372,20 @@ def sync_status_from_jd():
                     while True:
                         resp = requests.post(url, data=body, headers=headers)
                         ret = resp.json()
-
-                        print ret
+                        logger.debug('get jd response:%s' % resp.text, order['trade_no'], 'sync_status_from_jd')
+                        # print ret
                         jd_order_status = ret['rechargeOrder']['orderStatusName']
-                        logger.info(jd_order_status)
+                        logger.info(jd_order_status, order['trade_no'], 'sync_status_from_jd')
                         if jd_order_status == u'充值成功':
-                            logger.info('send to queue order_platform:phone_charge:order_success')
+                            logger.info('send to queue order_platform:phone_charge:order_success', order['trade_no'],
+                                        'sync_status_from_jd')
                             order['order_sync_jd_status_time'] = order_sync_jd_status_time
                             r.lpush('order_platform:phone_charge:order_success', json.dumps(order))
                             break
                         elif jd_order_status == u'等待付款' or u'充值失败' in jd_order_status:
                             logger.info(
-                                'lpush %s to queue order_platform:phone_charge:order_faild' % order['trade_no'])
+                                'lpush %s to queue order_platform:phone_charge:order_faild' % order['trade_no'],
+                                order['trade_no'], 'sync_status_from_jd')
                             r.lpush('order_platform:phone_charge:order_faild', json.dumps(
                                 {'trade_no': order['trade_no'], 'order_faild_time': order_sync_jd_status_time}))
                             break
@@ -400,20 +402,21 @@ def sync_status_from_jd():
                                 else:
                                     logger.info(
                                         'timeout,lpush %s  to queue order_platform:phone_charge:order_pay_success' %
-                                        order['trade_no'])
+                                        order['trade_no'], order['trade_no'], 'sync_status_from_jd')
                                     r.lpush('order_platform:phone_charge:order_pay_success', order['trade_no'])
                                     break
                             else:
-                                logger.info('charge timeout and need customer service verifies,set status')
+                                logger.info('charge timeout and need customer service verifies,set status',
+                                            order['trade_no'], 'sync_status_from_jd')
                                 resp = requests.post(base_data.ORDER_SETSTATUS_API_POST,
                                                      data={'order_id': order['trade_no'], 'status': '超时待人工核实'})
-                                logger.info(resp.text)
+                                logger.info(resp.text, order['trade_no'], 'sync_status_from_jd')
                                 break
                 else:
-                    logger.error('cant find order %s' % id)
+                    logger.error('cant find order %s' % id, program='sync_status_from_jd')
             else:
                 continue
         except Exception, e:
-            logger.error(e.message)
+            logger.error(e.message, program='sync_status_from_jd')
             time.sleep(5)
             continue
