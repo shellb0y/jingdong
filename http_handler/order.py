@@ -52,18 +52,18 @@ class Order:
     def gen_order(self, train, passenger_ids):
         url = 'http://train.m.jd.com/bookSeat/generateOrder.json'
 
-        seatType = str(train['data']['exData1'])
-        if seatType == '1':
-            seatType = 'yz'
-        elif seatType == 'O':
-            seatType = 'edz'
-        else:
-            raise Exception('seat type not support')
+        # seatType = str(train['data']['exData1'])
+        # if seatType == '1':
+        #     seatType = 'yz'
+        # elif seatType == 'O':
+        #     seatType = 'edz'
+        # else:
+        #     raise Exception('seat type not support')
 
         logger.info('seach ticket')
-        tickets = self.seach_ticket(train)
-        if tickets.has_key('ticket'):
-            start_time = tickets['ticket']['startTime']
+        ticket = self.seach_ticket(train)
+        if ticket:
+            start_time = ticket[0]['startTime']
         else:
             raise Exception('find out ticket faild')
 
@@ -71,7 +71,7 @@ class Order:
             time.mktime(
                 time.strptime(train['data']['ticketsInfo'][0]['dptDate'], "%Y-%m-%d"))).replace('.', '') + '00',
                 'toStationCode': train['data']['ticketsInfo'][0]['arrStation'],
-                'toStationName': train['data']['ticketsInfo'][0]['destination'].encode("utf-8"), 'seatType': seatType,
+                'toStationName': train['data']['ticketsInfo'][0]['destination'].encode("utf-8"), 'seatType': ticket[2],
                 'realBook': '1',
                 'phone': train['data']['contactInfo']['mobileNo'],
                 'fromStationName': train['data']['ticketsInfo'][0]['departure'].encode("utf-8"),
@@ -79,7 +79,8 @@ class Order:
                 'passengerIds': passenger_ids,
                 'seatPrice': int(train['data']['ticketsInfo'][0]['ticketPrice'] * 100),
                 'fromStationCode': train['data']['ticketsInfo'][0]['dptStation'],
-                'cheCi': train['data']['ticketsInfo'][0]['coachNo'],
+                # 'cheCi': train['data']['ticketsInfo'][0]['coachNo'],
+                'cheCi': ticket[1],
                 'trainTime': start_time,
                 'hasInsurance': False,
                 'insuranceCode': 0,
@@ -98,7 +99,7 @@ class Order:
         if resp_body and resp_body['success']:
             orderid = resp_body['orderId']
             data['orderid'] = orderid
-
+            data['checi'] = ticket['checi']
             return data
         else:
             raise Exception('generate order faild.\n%s' % resp.text)
@@ -177,4 +178,13 @@ class Order:
                    'Cookie': self.cookie
                    }
         resp = requests.post(url, data=data, headers=headers)
-        return resp.json()
+        return self.filter_ticket(resp.json()['tickets'], [train['data']['ticketsInfo'][0]['ticketPrice'],
+                                                           train['data']['ticketsInfo'][0]['ticketPrice'] + float(
+                                                               train['data']['ticketsInfo'][0]['priceSection'])])
+
+    def filter_ticket(self, tickets, price_range):
+        for t in tickets:
+            for s in t['siteList']:
+                if int(s['num']) > 0 and float(s['price']) >= price_range[0] and float(s['price']) <= price_range[1]:
+                    # print  s['price'], s['type'], int(s['num'])
+                    return t, s['price'], s['type']

@@ -15,10 +15,9 @@ class Login:
     def get_cookie(self):
         logger.debug('get-cookie[get_req_data]:%s %s %s' % (self.name, self.pwd, self.uuid))
         url = 'http://wlogin.m.jd.com/applogin_v2'
-        headers = {'User-Agent': 'Android WJLoginSDK 1.4.2'}
         data = auth.get_req_data(self.name, self.pwd, self.uuid)
-        logger.debug('POST %s\n%s\n%s' % (url, data, json.dumps(headers)))
-        resp = requests.post(url, data=data, headers=headers)
+        logger.debug('POST %s\n%s' % (url, data))
+        resp = requests.post(url, data=data)
         resp_text = resp.text
         logger.debug('resp: %s' % (resp_text))
 

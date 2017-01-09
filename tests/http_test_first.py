@@ -259,4 +259,33 @@ class HttpFirstTest(unittest.TestCase):
         resp = requests.post(url, data='body=' + urllib.quote_plus(json.dumps(body)) + '&', headers=headers)
         print resp.text
 
-    # def test_seach_
+    def test_seach_ticket(self):
+        headers = {
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Origin': 'https://train.m.jd.com',
+            'X-Requested-With': 'XMLHttpRequest',
+            'User-Agent': 'jdapp;android;5.6.0;4.4.2;863175026618021-a8a6681e316b;network/wifi;osp/android;apv/5.6.0;osv/4.4.2;uid/863175026618021-a8a6681e316b;pv/1147.18;psn/863175026618021-a8a6681e316b|1245;psq/3;ref/;pap/JA2015_311210|5.6.0|ANDROID 4.4.2;usc/;ucp/;umd/;utr/;adk/;ads/;jdv/0|direct|-|none|-|1482752023413|1482752384;Mozilla/5.0 (Linux; Android 4.4.2; NX507J Build/KVT49L) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/37.0.0.0 Mobile MQQBrowser/6.8 TBS/036872 Safari/537.36',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Referer': 'https://train.m.jd.com/ticket/tickets/s_1483977600000_%E5%B9%BF%E5%B7%9E%E5%8D%97_IZQ_%E9%95%BF%E6%B2%99%E5%8D%97_CWQ_0_0_0_0_0_0_0_0_0',
+            'Accept-Encoding': 'gzip, deflate',
+            'Accept-Language': 'zh-CN,en-US;q=0.8',
+            'Cookie': 'pt_key=app_openAAFYc1DhADB38JsPqg_5CsVgAcrUzUzwLPmtQ4pszvNVvDnJiQHsh8Sou3vVhBuNBGuEUKAht-Q; pt_pin=chaiwo6044; pwdt_id=chaiwo6044; sid=0fd1392c08a4bafc1c3ead4f22a577bw; __jdu=1585792057; mobilev=touch; __jda=122270672.1585792057.1482752023390.1482752023390.1483952449075.2; __jdb=122270672.2.1585792057|2.1483952449075; __jdc=122270672; mba_sid=1147.20; mba_muid=1585792057.1147.1483952457476; pre_session=863175026618021-a8a6681e316b|1245; pre_seq=3; __jdv=122270672|direct|-|none|-|1482752023413'
+        }
+
+        data = {'ticketRequest.trainDate': 1483977600000, 'ticketRequest.fromStation': 'IZQ',
+                'ticketRequest.toStation': 'CWQ', 'ticketRequest.fromStationName': '广州南',
+                'ticketRequest.toStationName': '长沙南'}
+
+        resp = requests.post('https://train.m.jd.com/ticket/searchTickets.json', data=urllib.urlencode(data),
+                             headers=headers)
+        tickets = resp.json()['tickets']
+
+        ticket = self.seachTicket(tickets,[300.0,900.0])
+        print ticket
+
+    def seachTicket(self, tickets, price_range):
+        for t in tickets:
+            for s in t['siteList']:
+                if  int(s['num']) >0 and float(s['price']) >= price_range[0] and float(s['price']) <= price_range[1]:
+                    print  s['price'], s['type'], int(s['num'])
+                    return t, s['price'], s['type']

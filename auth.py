@@ -7,7 +7,7 @@ import base_data
 import os
 
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__)))
-login_dll_path = os.path.normpath(os.path.join(root_path, 'libs/login.dll'))
+login_dll_path = os.path.normpath(os.path.join(root_path, 'libs/login5.6.dll'))
 sign_dll_path = os.path.normpath(os.path.join(root_path, 'libs/sign.dll'))
 
 # print login_dll_path,sign_dll_path
@@ -19,7 +19,7 @@ KEY = "47 44 50 64 46 53 61 6D 74 61 6B 53 67 78 52 64"
 
 def sign(function_id, uuid, body):
     st = str(int(round(time.time() * 1000)))
-    data = 'functionId=%s&body=%s&uuid=%s&client=android&clientVersion=5.3.0' % (function_id, body, uuid)
+    data = 'functionId=%s&body=%s&uuid=%s&client=android&clientVersion=5.6.0' % (function_id, body, uuid)
     # print sys.getsizeof(data)
     data_len = len(data) + 17
     mod = data_len % 8
@@ -44,9 +44,8 @@ def get_req_data(username, password, jd_uuid, cmd1=2, cmd2=6):
 
     account = '000200' + hex(len(account) / 2).replace('0x', '') + account
     device_finger_print = '00040034' + (
-        '000a0001000402020020' + hashlib.md5(jd_uuid.split('-')[1] + '###ss').hexdigest().upper()).encode('hex')
-    device = '0008005d000200640007616e64726f69640005342e342e320005352e312e300008313238302a37323000056a64617070000' \
-             '4776966690000001c%s000000010005312e342e320048001100036e6f7800034d693400034d49340000' % (
+        '000a0001000404020020' + hashlib.md5(jd_uuid.split('-')[1] + base_data.get_random_letter_number(7)).hexdigest().upper()).encode('hex')
+    device = '0008005d000200640007616e64726f69640005342e342e320005352e342e300008313238302a37323000056a646170700004776966690000001c%s000000010005322e342e300048001100036e6f7800034d693400034d49340000' % (
                  jd_uuid.encode('hex'))
     header = '0YXX0000000000000001000000010000000100000000000%d000%d0064011100' % (cmd1, cmd2)
 
@@ -115,9 +114,9 @@ def get_cookie(resp_data):
     if wskey_start == -1:
         wskey_start = resp_data.find('4163636')
         wskey_hex = resp_data[wskey_start:]
-    if wskey_start == -1:
-        wskey_start = resp_data.find('080019')
-        wskey_hex = resp_data[wskey_start + 6:]
+    # if wskey_start == -1:
+    #     wskey_start = resp_data.find('080019')
+    #     wskey_hex = resp_data[wskey_start + 6:]
 
     wskey_hex = resp_data[wskey_start + 8:wskey_stop]
     wskey_array = map(lambda x: int(x, 16), hex_format_space(wskey_hex).split(' '))
@@ -126,20 +125,20 @@ def get_cookie(resp_data):
 
 
 if __name__ == "__main__":
-    # req_data = get_req_data('jd_60aaf2f598861', 'e4e333', '')
-    # print  req_data
+    req_data = get_req_data('jd_60aaf2f598861', 'e4e333', '867323020350896-a086c68dae09')
+    print  req_data
 
-    resp = 'aHLnhbKM9oBtKHz0nVBtCtRI5vdKL0kEJSj85AR8sXiImjeOMj8xF+UhTWTXBgO4XV2QitZNleNzLP34rB0uAFK09+lzAsyuAhgCwXGz5YwkQ4hpnbx8vqwX1ZGaRkE590kX4nsrDFtOFqNklC1FStEKZBNQNrTd1J1hlDqudi7sxmZgh48TLno39B+dPuhP7PpKIkO9JAdoHP9KuVyoWA=='
+    # resp = 'aHLnhbKM9oBtKHz0nVBtCtRI5vdKL0kEJSj85AR8sXiImjeOMj8xF+UhTWTXBgO4XV2QitZNleNzLP34rB0uAFK09+lzAsyuAhgCwXGz5YwkQ4hpnbx8vqwX1ZGaRkE590kX4nsrDFtOFqNklC1FStEKZBNQNrTd1J1hlDqudi7sxmZgh48TLno39B+dPuhP7PpKIkO9JAdoHP9KuVyoWA=='
+    # cookie = get_cookie(resp)
+    # print  cookie
+    #
+    # pin = ''.join(map(lambda x: chr(int(x, 16)), hex_format_space('00BF000000000000000100000001000000016256F6710002000600640111770003006F000100770013756E737570706F727465642076657273696F6E0054E8AFB7E58D87E7BAA7E887B3E69C80E696B0E78988E69CACE4BDBFE794A8EFBC88E58D87E7BAA7E8B7AFE5BE84EFBC9AE68891E79A843EE8AEBEE7BDAE3EE585B3E4BA8E3EE6A380E6B58BE69BB4E696B0EFBC89001E0029687474703A2F2F73746F726167652E6A642E636F6D2F6A646D6F62696C652F4A444D616C6C2E61706B').split(' ')))
+    # print pin
+    #
+    resp = 'OuCEH9dy1NSoHDI/4HsU433XqfYqdIbJPf1/s68PNbTooFzJggELeov8IMtQsiZwYqtWDHk1cBOjQblSztgn/x2iDtkKROWb0NXNFFmq/Tlb677wsdJW0pQhj0/xdkdSWTKD3KfGCXTT8xm6oATuhbvpXz5hU01UFI+C4pB+Q4dxoy9K1EUgXrvO1rboPTcQ53Obiamatqo8sdvsKbiLSA=='
     cookie = get_cookie(resp)
     print  cookie
-
-    pin = ''.join(map(lambda x: chr(int(x, 16)), hex_format_space('00BF000000000000000100000001000000016256F6710002000600640111770003006F000100770013756E737570706F727465642076657273696F6E0054E8AFB7E58D87E7BAA7E887B3E69C80E696B0E78988E69CACE4BDBFE794A8EFBC88E58D87E7BAA7E8B7AFE5BE84EFBC9AE68891E79A843EE8AEBEE7BDAE3EE585B3E4BA8E3EE6A380E6B58BE69BB4E696B0EFBC89001E0029687474703A2F2F73746F726167652E6A642E636F6D2F6A646D6F62696C652F4A444D616C6C2E61706B').split(' ')))
-    print pin
-
-    resp = 'FY5WLgdOFdZDaX7u/pQPPeKKw+WTzSEl7uPzbDhJchobl2sKS/K+w3Et5bCdrKCRr4qkgzH2VTrNsK2Mw2GtBE0mF7984yEDeAlOSKDBmyWZzzW+n4WxEwr/ASP+7avpPnBKKl6gzPynsoIgCE6nKPej/SCAPtUnQkLSDKFFiyw7aPmsTw+Iqti0+C0AZ/s1mr/XUoWnSkfDBY23iK9GxuNhj4cFHo+J73CNqGtC4/Lp3rxenThbLw=='
-    cookie = get_resp_data(resp)
-    print  cookie
-
-    sign_data = sign('newUserInfo', base_data.get_random_number() + '-' + base_data.get_random_letter_number(12),
-                     '{"flag":"nickname"}')
-    print sign_data
+    #
+    # sign_data = sign('newUserInfo', base_data.get_random_number() + '-' + base_data.get_random_letter_number(12),
+    #                  '{"flag":"nickname"}')
+    # print sign_data

@@ -39,6 +39,7 @@ def place_order():
                 partner_order_id = train['order_id']
                 logger.debug(json.dumps(train))
             except Exception, e:
+                print resp.text
                 print 'get jingdong train data faild'
                 time.sleep(5)
                 continue
@@ -101,9 +102,9 @@ def place_order():
                 if order_details:
                     logger.info('erpOrderId %s,callback start...' % order_details['erpOrderId'])
                     resp = requests.get(
-                        'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&jdorder_id=%s&success=true&order_no=%s&amount=%s&order_src=app' % (
+                        'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&jdorder_id=%s&success=true&order_no=%s&amount=%s&order_src=app&checi=%s' % (
                             partner_order_id, order_details['erpOrderId'], order_data['orderid'],
-                            order_details['onlinePayFee']))
+                            order_details['onlinePayFee'],order_data['checi']))
                     logger.info(resp.text)
                     logger.info('ALL SUCCESS')
                     time.sleep(PLACEORDERINTERVAL)
