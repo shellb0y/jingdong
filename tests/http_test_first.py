@@ -272,13 +272,18 @@ class HttpFirstTest(unittest.TestCase):
             'Cookie': 'pt_key=app_openAAFYc1DhADB38JsPqg_5CsVgAcrUzUzwLPmtQ4pszvNVvDnJiQHsh8Sou3vVhBuNBGuEUKAht-Q; pt_pin=chaiwo6044; pwdt_id=chaiwo6044; sid=0fd1392c08a4bafc1c3ead4f22a577bw; __jdu=1585792057; mobilev=touch; __jda=122270672.1585792057.1482752023390.1482752023390.1483952449075.2; __jdb=122270672.2.1585792057|2.1483952449075; __jdc=122270672; mba_sid=1147.20; mba_muid=1585792057.1147.1483952457476; pre_session=863175026618021-a8a6681e316b|1245; pre_seq=3; __jdv=122270672|direct|-|none|-|1482752023413'
         }
 
-        data = {'ticketRequest.trainDate': 1483977600000, 'ticketRequest.fromStation': 'IZQ',
-                'ticketRequest.toStation': 'CWQ', 'ticketRequest.fromStationName': '广州南',
-                'ticketRequest.toStationName': '长沙南'}
+        # data = {'ticketRequest.trainDate': 1483977600000, 'ticketRequest.fromStation': 'IZQ',
+        #         'ticketRequest.toStation': 'CWQ', 'ticketRequest.fromStationName': '广州南',
+        #         'ticketRequest.toStationName': '长沙南'}
+        data = {'ticketRequest.fromStation': u'RZH', 'ticketRequest.toStation': u'UQW',
+         'ticketRequest.trainDate': '1485619200000', 'ticketRequest.toStationName': '\xe6\xa2\x81\xe5\xb9\xb3',
+         'ticketRequest.fromStationName': '\xe6\xb8\xa9\xe5\xb7\x9e'}
 
         resp = requests.post('https://train.m.jd.com/ticket/searchTickets.json', data=urllib.urlencode(data),
                              headers=headers)
         tickets = resp.json()['tickets']
+
+        print resp.text
 
         ticket = self.seachTicket(tickets,[300.0,900.0])
         print ticket

@@ -39,7 +39,8 @@ def place_order():
                 partner_order_id = train['order_id']
                 logger.debug(json.dumps(train))
             except Exception, e:
-                print resp.text
+                if resp:
+                    print resp.text
                 print 'get jingdong train data faild'
                 time.sleep(5)
                 continue

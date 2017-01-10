@@ -80,7 +80,7 @@ class Order:
                 'seatPrice': int(train['data']['ticketsInfo'][0]['ticketPrice'] * 100),
                 'fromStationCode': train['data']['ticketsInfo'][0]['dptStation'],
                 # 'cheCi': train['data']['ticketsInfo'][0]['coachNo'],
-                'cheCi': ticket[1],
+                'cheCi': ticket[0]['trainCode'],
                 'trainTime': start_time,
                 'hasInsurance': False,
                 'insuranceCode': 0,
@@ -88,7 +88,7 @@ class Order:
                 'invoiceJson': {},
                 'isGrab': False
                 }
-
+        print data
         encode_data = urllib.urlencode(data)
         logger.debug('POST %s \n%s' % (url, encode_data))
         # data = 'cheCi=G5&seatType=edz&seatPrice=55300&fromStationCode=VNP&fromStationName=%E5%8C%97%E4%BA%AC%E5%8D%97&toStationCode=AOH&toStationName=%E4%B8%8A%E6%B5%B7%E8%99%B9%E6%A1%A5&trainDate=1480435200000&passengerIds=1204607&contact=%E5%90%B4%E5%8B%87%E5%88%9A&phone=13978632546&realBook=1&account=&password='
@@ -99,7 +99,7 @@ class Order:
         if resp_body and resp_body['success']:
             orderid = resp_body['orderId']
             data['orderid'] = orderid
-            data['checi'] = ticket['checi']
+            data['checi'] = ticket[0]['trainCode']
             return data
         else:
             raise Exception('generate order faild.\n%s' % resp.text)
@@ -155,7 +155,7 @@ class Order:
 
     def seach_ticket(self, train):
         url = 'http://train.m.jd.com/ticket/searchTickets.json'
-        data = {'ticketRequest.trainCode': train['data']['ticketsInfo'][0]['coachNo'],
+        data = {#'ticketRequest.trainCode': train['data']['ticketsInfo'][0]['coachNo'],
                 'ticketRequest.trainDate': str(
                     time.mktime(
                         time.strptime(train['data']['ticketsInfo'][0]['dptDate'], "%Y-%m-%d"))).replace('.', '') + '00',
@@ -178,9 +178,10 @@ class Order:
                    'Cookie': self.cookie
                    }
         resp = requests.post(url, data=data, headers=headers)
+        print train
         return self.filter_ticket(resp.json()['tickets'], [train['data']['ticketsInfo'][0]['ticketPrice'],
                                                            train['data']['ticketsInfo'][0]['ticketPrice'] + float(
-                                                               train['data']['ticketsInfo'][0]['priceSection'])])
+                                                               train['data']['exData2']['priceSection'])])
 
     def filter_ticket(self, tickets, price_range):
         for t in tickets:
