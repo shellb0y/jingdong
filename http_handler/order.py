@@ -88,7 +88,7 @@ class Order:
                 'invoiceJson': {},
                 'isGrab': False
                 }
-        print data
+        # print data
         encode_data = urllib.urlencode(data)
         logger.debug('POST %s \n%s' % (url, encode_data))
         # data = 'cheCi=G5&seatType=edz&seatPrice=55300&fromStationCode=VNP&fromStationName=%E5%8C%97%E4%BA%AC%E5%8D%97&toStationCode=AOH&toStationName=%E4%B8%8A%E6%B5%B7%E8%99%B9%E6%A1%A5&trainDate=1480435200000&passengerIds=1204607&contact=%E5%90%B4%E5%8B%87%E5%88%9A&phone=13978632546&realBook=1&account=&password='
@@ -178,7 +178,7 @@ class Order:
                    'Cookie': self.cookie
                    }
         resp = requests.post(url, data=data, headers=headers)
-        print train
+        # print train
         return self.filter_ticket(resp.json()['tickets'], [train['data']['ticketsInfo'][0]['ticketPrice'],
                                                            train['data']['ticketsInfo'][0]['ticketPrice'] + float(
                                                                train['data']['exData2']['priceSection'])])
