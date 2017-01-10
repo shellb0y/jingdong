@@ -25,7 +25,8 @@ class httpHandlerTest(unittest.TestCase):
 
     def test_get_h5_cookie(self):
         login = http_handler.login.Login(self.name, self.pwd, self.uuid, self.user_agent)
-        cookie = login.get_h5_cookie('pin=jd_79cf9db2ba962; wskey=AAFYP6NbAEBwRKUgACTrxuiT5KxQzGwR7EJloNamFpbnZ48EQV3JJD69P59ZDVVHJ6ArP8jb62j6dE-rrTZD9StYikwGjixP; whwswswws=')
+        cookie = login.get_h5_cookie(
+            'pin=jd_79cf9db2ba962; wskey=AAFYP6NbAEBwRKUgACTrxuiT5KxQzGwR7EJloNamFpbnZ48EQV3JJD69P59ZDVVHJ6ArP8jb62j6dE-rrTZD9StYikwGjixP; whwswswws=')
         print  cookie
 
     def test_add_passenger(self):
@@ -92,3 +93,8 @@ class httpHandlerTest(unittest.TestCase):
                   'pt_pin': 'jd_6c83b7ced8f82'}
         order = http_handler.order.Order(self.uuid, self.user_agent, cookie)
         print order.get_details(1252297)
+
+    def test_get_couponList(self):
+        cookie = 'pin=jd_509ba7405a3f0; wskey=AAFYdJmBAEBkJDsHmOJsmnlKOjr5VIi93ZktTK_ZEDEYurG5oP6BGGv82qJaQ4xMVQHLEIAxaplqpZrrrh1YHDJ94GkxPClf; whwswswws=00'
+        login = http_handler.login.Login(self.name, self.pwd, self.uuid, self.user_agent)
+        print login.get_couponList(cookie,'85345873d18')

@@ -68,6 +68,20 @@ def place_order():
             h5_cookie = login.get_h5_cookie(cookie)
             logger.info('get h5 cookie:%s' % h5_cookie)
 
+            couponid = ''
+            couponPrice = ''
+            if train['data']['exData2'].has_key('couponid'):
+                couponid = train['data']['exData2']['couponid']
+                logger.info('get couponid %s' % couponid)
+            if train['data']['exData2'].has_key('couponPrice'):
+                couponPrice = train['data']['exData2']['couponPrice']
+                logger.info('get couponPrice %s' % couponPrice)
+
+            logger.info('find out couponid')
+            if not login.get_couponList(cookie, couponid):
+                logger.info('faild')
+                raise Exception(u'没有找到优惠卷,%s' % couponid)
+
             order = http_handler.order.Order(uuid, user_agent, h5_cookie)
             passengers = train['data']['passengersInfo']
             logger.info('add passenger %s' % json.dumps(passengers))
@@ -76,18 +90,9 @@ def place_order():
 
             order_data = order.gen_order(train, passenger_ids)
             logger.info('order generate success,id:%s.get token...' % order_data['orderid'])
+
             order_data = order.get_token(order_data)
             logger.info('order token success,%s' % order_data['token'])
-
-            couponid = ''
-            couponPrice = ''
-
-            if train['data']['exData2'].has_key('couponid'):
-                couponid = train['data']['exData2']['couponid']
-                logger.info('get couponid %s' % couponid)
-            if train['data']['exData2'].has_key('couponPrice'):
-                couponPrice = train['data']['exData2']['couponPrice']
-                logger.info('get couponPrice %s' % couponPrice)
 
             if not (couponid and couponPrice):
                 order_data['couponid'] = ''
@@ -105,16 +110,17 @@ def place_order():
                     resp = requests.get(
                         'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&jdorder_id=%s&success=true&order_no=%s&amount=%s&order_src=app&checi=%s' % (
                             partner_order_id, order_details['erpOrderId'], order_data['orderid'],
-                            order_details['onlinePayFee'],order_data['checi']))
+                            order_details['onlinePayFee'], order_data['cheCi']))
                     logger.info(resp.text)
                     logger.info('ALL SUCCESS')
                     time.sleep(PLACEORDERINTERVAL)
                 else:
                     raise Exception('order place faild')
             else:
-                raise  Exception('submit maybe faild')
-        except requests.exceptions.ConnectionError,e:
+                raise Exception('submit maybe faild')
+        except requests.exceptions.ConnectionError, e:
             print 'adsl faild'
+            print traceback.format_exc()
             adsl_service.reconnect()
         except Exception, e:
             logger.error(traceback.format_exc())
@@ -146,6 +152,7 @@ def login_from_api():
         except Exception, e:
             logger.error(traceback.format_exc())
             time.sleep(5)
+
 
 def login_from_txt():
     root_path = os.path.abspath(os.path.join(os.path.dirname(__file__)))

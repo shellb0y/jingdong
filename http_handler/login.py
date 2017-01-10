@@ -30,7 +30,7 @@ class Login:
     def get_h5_cookie(self, cookie):
         body = {"action": "to", "to": 'https%3A%2F%2Ftrain.m.jd.com'}
         sign = auth.sign('genToken', self.uuid, json.dumps(body))
-        url = 'http://api.m.jd.com/client.action?functionId=genToken&clientVersion=5.3.0&build=36639&client=android&d_brand=ZTE&d_model=SCH-I779&osVersion=4.4.2&screen=1280*720&partner=tencent&uuid=%s&area=1_2802_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+        url = 'http://api.m.jd.com/client.action?functionId=genToken&clientVersion=5.3.0&build=36639&client=android&d_brand=&d_model=&osVersion=&screen=1280*720&partner=tencent&uuid=%s&area=1_2802_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
             self.uuid, sign[1], sign[0])
 
         logger.debug('POST %s' % url)
@@ -58,3 +58,25 @@ class Login:
             'User-Agent': self.user_agent}, verify=False)
 
         return session.cookies.get_dict()
+
+    def get_couponList(self, cookie, id):
+        headers = {'Accept-Encoding': 'gzip,deflate',
+                   'jdc-backup': cookie,
+                   'Cookie': cookie,
+                   'Charset': 'UTF-8',
+                   'Connection': 'Keep-Alive',
+                   'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                   'User-Agent': 'Dalvik/1.6.0 (Linux; U; Android 4.4.2;)'
+                   }
+        body = {"pageSize": "100", "page": "1"}
+        sign = auth.sign('configCouponList', self.uuid, json.dumps(body))
+        resp = requests.post(
+            'http://api.m.jd.com/client.action?functionId=configCouponList&clientVersion=5.3.0&build=36639&client=android&d_brand=&d_model=&osVersion=&screen=1280*720&partner=jingdong&uuid=%s&area=1_2802_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+                self.uuid, sign[1], sign[0]),
+            data='body=' + urllib.quote(json.dumps(body)) + '&',
+            headers=headers)
+        list = resp.json()
+        if id:
+            return filter(lambda c: c['id'] == id,list['couponList'])
+        else:
+            return list

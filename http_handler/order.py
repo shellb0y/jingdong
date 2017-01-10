@@ -12,19 +12,20 @@ class Order:
     def __init__(self, uuid, user_agent, cookie):
         self.uuid = uuid
         self.user_agent = user_agent
-        self.cookie = 'pt_key=%s;pwdt_id=%s;sid=%s;guid=%s;pt_pin=%s;mobilev=%s' % (
-            cookie['pt_key'], cookie['pwdt_id'], cookie['sid'], cookie['guid'],
-            cookie['pt_pin'], cookie['mobilev'])
-        self.headers = {'Pragma': 'no-cache',
-                        'Cache-Control': 'no-cache',
-                        'Accept': 'application/json, text/javascript, */*; q=0.01',
-                        'Origin': 'http://train.m.jd.com',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'User-Agent': self.user_agent,
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                        'Accept-Encoding': 'gzip, deflate',
-                        'Accept-Language': 'zh-CN,en-US;q=0.8',
-                        'cookie': self.cookie}
+        if cookie:
+            self.cookie = 'pt_key=%s;pwdt_id=%s;sid=%s;guid=%s;pt_pin=%s;mobilev=%s' % (
+                cookie['pt_key'], cookie['pwdt_id'], cookie['sid'], cookie['guid'],
+                cookie['pt_pin'], cookie['mobilev'])
+            self.headers = {'Pragma': 'no-cache',
+                            'Cache-Control': 'no-cache',
+                            'Accept': 'application/json, text/javascript, */*; q=0.01',
+                            'Origin': 'http://train.m.jd.com',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'User-Agent': self.user_agent,
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                            'Accept-Encoding': 'gzip, deflate',
+                            'Accept-Language': 'zh-CN,en-US;q=0.8',
+                            'cookie': self.cookie}
 
     # {"passengerId": 1232896, "success": true}
     def add_passenger(self, passenger):
@@ -155,14 +156,14 @@ class Order:
 
     def seach_ticket(self, train):
         url = 'http://train.m.jd.com/ticket/searchTickets.json'
-        data = {#'ticketRequest.trainCode': train['data']['ticketsInfo'][0]['coachNo'],
-                'ticketRequest.trainDate': str(
-                    time.mktime(
-                        time.strptime(train['data']['ticketsInfo'][0]['dptDate'], "%Y-%m-%d"))).replace('.', '') + '00',
-                'ticketRequest.fromStation': train['data']['ticketsInfo'][0]['dptStation'],
-                'ticketRequest.toStation': train['data']['ticketsInfo'][0]['arrStation'],
-                'ticketRequest.fromStationName': train['data']['ticketsInfo'][0]['departure'].encode("utf-8"),
-                'ticketRequest.toStationName': train['data']['ticketsInfo'][0]['destination'].encode("utf-8")}
+        data = {  # 'ticketRequest.trainCode': train['data']['ticketsInfo'][0]['coachNo'],
+            'ticketRequest.trainDate': str(
+                time.mktime(
+                    time.strptime(train['data']['ticketsInfo'][0]['dptDate'], "%Y-%m-%d"))).replace('.', '') + '00',
+            'ticketRequest.fromStation': train['data']['ticketsInfo'][0]['dptStation'],
+            'ticketRequest.toStation': train['data']['ticketsInfo'][0]['arrStation'],
+            'ticketRequest.fromStationName': train['data']['ticketsInfo'][0]['departure'].encode("utf-8"),
+            'ticketRequest.toStationName': train['data']['ticketsInfo'][0]['destination'].encode("utf-8")}
 
         headers = {'Host': 'train.m.jd.com',
                    'Pragma': 'no-cache',
