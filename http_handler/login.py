@@ -76,7 +76,6 @@ class Login:
             self.uuid, sign[1], sign[0]),
             data='body=' + urllib.quote(json.dumps(body)) + '&',
             headers=headers)
-
         logger.debug(resp.url)
         logger.debug(resp.text)
 

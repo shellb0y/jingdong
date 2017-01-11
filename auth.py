@@ -97,8 +97,9 @@ def get_cookie(resp_data):
     else:
         wssl_stop = resp_data.find('000A0048')
         if wssl_stop == -1:
+            pass
             # wssl_stop = resp_data.find('000A0058')
-            raise ValueError('whwswswws stop index not found')
+            # raise ValueError('whwswswws stop index not found')
             # print 'whwswswws start index not found'
         else:
             whwswswws = resp_data[wssl_start + 10:wssl_stop]
