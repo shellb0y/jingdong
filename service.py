@@ -112,6 +112,8 @@ def place_order():
                             partner_order_id, order_details['erpOrderId'], order_data['orderid'],
                             order_details['onlinePayFee'], order_data['cheCi']))
                     logger.info(resp.text)
+                    # logger.info('get pc cookie')
+
                     logger.info('ALL SUCCESS')
                     time.sleep(PLACEORDERINTERVAL)
                 else:

@@ -52,7 +52,7 @@ def get_req_data(username, password, jd_uuid, cmd1=2, cmd2=6):
     data = (header + account + device_finger_print + device).upper()
     length = hex(len(data) / 2).replace('0x', '')
 
-    if length <= 256:
+    if len(str(length)) < 3:
         data = data.replace('Y', '0').replace('XX', length)
     else:
         data = data.replace('Y', length[0]).replace('XX', length[1:3])
@@ -97,7 +97,7 @@ def get_cookie(resp_data):
     else:
         wssl_stop = resp_data.find('000A0048')
         if wssl_stop == -1:
-            wssl_stop = resp_data.find('000A0058')
+            # wssl_stop = resp_data.find('000A0058')
             raise ValueError('whwswswws stop index not found')
             # print 'whwswswws start index not found'
         else:
@@ -107,16 +107,16 @@ def get_cookie(resp_data):
         whwswswws = ''.join(map(lambda x: chr(int(x, 16)), hex_format_space(whwswswws).split(' ')))
 
     wskey_hex = ''
-    wskey_start = resp_data.find('000A0048')
+    wskey_start = resp_data.find('0A0048')
     wskey_stop = resp_data.find('000E')
     if wskey_start == -1:
-        wskey = resp_data.find('000A0058')
+        wskey = resp_data.find('0A0058')
     if wskey_start == -1:
         wskey_start = resp_data.find('4163636')
         wskey_hex = resp_data[wskey_start:]
-    # if wskey_start == -1:
-    #     wskey_start = resp_data.find('080019')
-    #     wskey_hex = resp_data[wskey_start + 6:]
+    if wskey_start == -1:
+        wskey_start = resp_data.find('080019')
+        wskey_hex = resp_data[wskey_start + 6:]
 
     wskey_hex = resp_data[wskey_start + 8:wskey_stop]
     wskey_array = map(lambda x: int(x, 16), hex_format_space(wskey_hex).split(' '))

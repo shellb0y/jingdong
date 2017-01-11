@@ -11,8 +11,8 @@ class httpHandlerTest(unittest.TestCase):
     def setUp(self):
         # self.uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
         # self.user_agent = base_data.get_user_agent()
-        self.name = 'jd_60aaf2f598861'
-        self.pwd = 'e4e333'
+        self.name = 'wanjia29'
+        self.pwd = 'TnC4PZ9F'
         self.uuid = '823466913984714-pgveoceqje9l'
         self.user_agent = 'Mozilla/5.0 (Symbian/3; Series60/5.2 NokiaN8-00/012.002; Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/533.4 (KHTML, like Gecko) NokiaBrowser/7.3.0 Mobile Safari/533.4 3gpp-gba'
 
