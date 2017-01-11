@@ -107,10 +107,10 @@ def get_cookie(resp_data):
         whwswswws = ''.join(map(lambda x: chr(int(x, 16)), hex_format_space(whwswswws).split(' ')))
 
     wskey_hex = ''
-    wskey_start = resp_data.find('0A0048')
+    wskey_start = resp_data.find('0A0058')
     wskey_stop = resp_data.find('000E')
     if wskey_start == -1:
-        wskey = resp_data.find('0A0058')
+        wskey_start = resp_data.find('0A0048')
     if wskey_start == -1:
         wskey_start = resp_data.find('4163636')
         wskey_hex = resp_data[wskey_start:]
@@ -118,7 +118,8 @@ def get_cookie(resp_data):
         wskey_start = resp_data.find('080019')
         wskey_hex = resp_data[wskey_start + 6:]
 
-    wskey_hex = resp_data[wskey_start + 8:wskey_stop]
+    if not wskey_hex:
+        wskey_hex = resp_data[wskey_start + 6:wskey_stop]
     wskey_array = map(lambda x: int(x, 16), hex_format_space(wskey_hex).split(' '))
     wskey = base64.b64encode(bytearray(wskey_array)).replace('+', '-').replace('==', '').replace('/', '_')
     return 'pin=%s; wskey=%s; whwswswws=%s' % (pin, wskey, whwswswws)
@@ -135,7 +136,7 @@ if __name__ == "__main__":
     # pin = ''.join(map(lambda x: chr(int(x, 16)), hex_format_space('00BF000000000000000100000001000000016256F6710002000600640111770003006F000100770013756E737570706F727465642076657273696F6E0054E8AFB7E58D87E7BAA7E887B3E69C80E696B0E78988E69CACE4BDBFE794A8EFBC88E58D87E7BAA7E8B7AFE5BE84EFBC9AE68891E79A843EE8AEBEE7BDAE3EE585B3E4BA8E3EE6A380E6B58BE69BB4E696B0EFBC89001E0029687474703A2F2F73746F726167652E6A642E636F6D2F6A646D6F62696C652F4A444D616C6C2E61706B').split(' ')))
     # print pin
     #
-    resp = 'OuCEH9dy1NSoHDI/4HsU433XqfYqdIbJPf1/s68PNbTooFzJggELeov8IMtQsiZwYqtWDHk1cBOjQblSztgn/x2iDtkKROWb0NXNFFmq/Tlb677wsdJW0pQhj0/xdkdSWTKD3KfGCXTT8xm6oATuhbvpXz5hU01UFI+C4pB+Q4dxoy9K1EUgXrvO1rboPTcQ53Obiamatqo8sdvsKbiLSA=='
+    resp = '/udsS0mqmpA6L8dkBCJj/yB/3FPykD3ZqAwK4DNOzw6vNPpdYsu9oPr8yvmCIrkcdffcp756Vjf420/Xyc4b1dYzvqsEd3DeQByOl+lLLeoYIvxH2uTgpc75As/nQha2rcxtAyFGRsJEs17SpZP/tu0zz1Tzwho+jJqAWkjEHkWfI6jpeJnKE+KZGOvk1kegM43Wu3D3cvE='
     cookie = get_cookie(resp)
     print  cookie
     #

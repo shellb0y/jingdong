@@ -11,8 +11,8 @@ class httpHandlerTest(unittest.TestCase):
     def setUp(self):
         # self.uuid = base_data.get_random_number() + '-' + base_data.get_random_letter_number(12).lower()
         # self.user_agent = base_data.get_user_agent()
-        self.name = 'wanjia29'
-        self.pwd = 'TnC4PZ9F'
+        self.name = 'yangguan46'
+        self.pwd = 'gC002YUk'
         self.uuid = '823466913984714-pgveoceqje9l'
         self.user_agent = 'Mozilla/5.0 (Symbian/3; Series60/5.2 NokiaN8-00/012.002; Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/533.4 (KHTML, like Gecko) NokiaBrowser/7.3.0 Mobile Safari/533.4 3gpp-gba'
 
@@ -26,7 +26,7 @@ class httpHandlerTest(unittest.TestCase):
     def test_get_h5_cookie(self):
         login = http_handler.login.Login(self.name, self.pwd, self.uuid, self.user_agent)
         cookie = login.get_h5_cookie(
-            'pin=jd_79cf9db2ba962; wskey=AAFYP6NbAEBwRKUgACTrxuiT5KxQzGwR7EJloNamFpbnZ48EQV3JJD69P59ZDVVHJ6ArP8jb62j6dE-rrTZD9StYikwGjixP; whwswswws=')
+            'pin=duanchen9253; wskey=AVh1rr8AQDy_SRAXh5YC1FO7MJT3mOzbdIT6Ngw-cN3wah5qltsJJrWQ_N6Qq1uEbyS-axQYPkiTFB6NGmbeC9lKK3-qxCE=; whwswswws=')
         print  cookie
 
     def test_add_passenger(self):
@@ -95,6 +95,6 @@ class httpHandlerTest(unittest.TestCase):
         print order.get_details(1252297)
 
     def test_get_couponList(self):
-        cookie = 'pin=jd_509ba7405a3f0; wskey=AAFYdJmBAEBkJDsHmOJsmnlKOjr5VIi93ZktTK_ZEDEYurG5oP6BGGv82qJaQ4xMVQHLEIAxaplqpZrrrh1YHDJ94GkxPClf; whwswswws=00'
+        cookie = 'pin=yangguan46; wskey=AAFYdfGKAECtFaiYLaDqCWNYajvfGc_8K4LgaInRw7ASgmc6fSfr7IlJWfx9CbPnPOdTDf7NTnBD-i6FYt_w2c4KTVYK1Isd; whwswswws=00'
         login = http_handler.login.Login(self.name, self.pwd, self.uuid, self.user_agent)
         print login.get_couponList(cookie,'85345873d18')

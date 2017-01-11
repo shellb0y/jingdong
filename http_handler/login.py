@@ -16,8 +16,10 @@ class Login:
         logger.debug('get-cookie[get_req_data]:%s %s %s' % (self.name, self.pwd, self.uuid))
         url = 'http://wlogin.m.jd.com/applogin_v2'
         data = auth.get_req_data(self.name, self.pwd, self.uuid)
-        logger.debug('POST %s\n%s' % (url, data))
-        resp = requests.post(url, data=data)
+        headers = {'User-Agent': 'Android WJLoginSDK 2.4.0'}
+        data = auth.get_req_data(self.name, self.pwd, self.uuid)
+        logger.debug('POST %s\n%s\n%s' % (url, data, json.dumps(headers)))
+        resp = requests.post(url, data=data, headers=headers)
         resp_text = resp.text
         logger.debug('resp: %s' % (resp_text))
 
@@ -64,19 +66,21 @@ class Login:
                    'jdc-backup': cookie,
                    'Cookie': cookie,
                    'Charset': 'UTF-8',
-                   'Connection': 'Keep-Alive',
                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                    'User-Agent': 'Dalvik/1.6.0 (Linux; U; Android 4.4.2;)'
                    }
-        body = {"pageSize": "100", "page": "1"}
+        body = {"pageSize": "10", "page": "1"}
         sign = auth.sign('configCouponList', self.uuid, json.dumps(body))
         resp = requests.post(
-            'http://api.m.jd.com/client.action?functionId=configCouponList&clientVersion=5.3.0&build=36639&client=android&d_brand=&d_model=&osVersion=&screen=1280*720&partner=jingdong&uuid=%s&area=1_2802_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
-                self.uuid, sign[1], sign[0]),
+            url = 'http://api.m.jd.com/client.action?functionId=configCouponList&clientVersion=5.6.0&build=36639&client=android&d_brand=&d_model=&osVersion=&screen=1280*720&partner=tencent&uuid=%s&area=1_2802_0_0&networkType=wifi&st=%s&sign=%s&sv=122' % (
+            self.uuid, sign[1], sign[0]),
             data='body=' + urllib.quote(json.dumps(body)) + '&',
             headers=headers)
-        logger.debug(resp.url)
-        logger.debug(resp.text)
+
+        print resp.text
+        # logger.debug(resp.url)
+        # logger.debug(resp.text)
+
         list = resp.json()
         if id:
             return filter(lambda c: c['id'] == id,list['couponList'])
