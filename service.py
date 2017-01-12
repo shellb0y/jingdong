@@ -106,11 +106,26 @@ def place_order():
                 logger.info('get order details')
                 order_details = order.get_details(order_data['orderid'])
                 if order_details:
+                    logger.info('get pc cookie')
+                    pc_cookie=''
+                    try:
+                        resp = requests.get(
+                            'http://115.29.79.63:9000/api/Cookie/Get?username=%s&password=%s' % (username, password),timeout=10)
+                        data=resp.json()
+                        if data['Status']:
+                            pc_cookie=data['Cookie']
+                        else:
+                            logger.error(data['Message'])
+                    except requests.exceptions.ReadTimeout:
+                        logger.error('timeout')
+                    except Exception,e:
+                        logger.error(e.message)
+
                     logger.info('erpOrderId %s,callback start...' % order_details['erpOrderId'])
                     resp = requests.get(
-                        'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&jdorder_id=%s&success=true&order_no=%s&amount=%s&order_src=app&checi=%s' % (
+                        'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&jdorder_id=%s&success=true&order_no=%s&amount=%s&order_src=app&checi=%s&cookie=%s' % (
                             partner_order_id, order_details['erpOrderId'], order_data['orderid'],
-                            order_details['onlinePayFee'], order_data['cheCi']))
+                            order_details['onlinePayFee'], order_data['cheCi'],pc_cookie))
                     logger.info(resp.text)
                     # logger.info('get pc cookie')
 

@@ -102,3 +102,8 @@ print encrypt_p.value
 decrypt_addr = d_encrypt_dll.TeaDecrypt("47 44 50 64 46 53 61 6D 74 61 6B 53 67 78 52 64", "B8 8F 67 8C 11 96 48 F8 D6 EE 70 BA F6 8C B8 52 9B 40 88 67 45 CF DC 51 5D 61 0D 51 6F ED A2 6C B6 C6 C8 D9 6C 0D 2A F9 8C C7 B4 99 83 1F ED D5 35 6A 16 E7 36 32 BE FB 45 73 7C 63 18 25 50 B7 10 15 EA 55 B3 B4 D6 CC 04 C3 B9 8D 62 2E AB DF 47 3C 48 0B 81 28 62 76 29 5C 59 E9 4C 3C DA 93 FF FD E5 4B 07 D0 A4 B1 80 9E 97 72 BB 4B 28 C0 9D 75 80 DF 06 01 E5 57 12 E5 BC CA 78 6A C4 30 D5 F2 DB 47 27 8E 07 BE 7F 88 8E 1D 41 B2 03 2E D6 14 74 AB 3C DA 23 7D")
 decrypt_p = ctypes.c_char_p(decrypt_addr)
 print decrypt_p.value
+
+import requests
+resp = requests.get(
+                        'http://115.29.79.63:9000/api/Cookie/Get?username=%s&password=%s' % ('1321321321', '321321321'),
+                        timeout=1)
