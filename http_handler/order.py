@@ -100,7 +100,6 @@ class Order:
         if resp_body and resp_body['success']:
             orderid = resp_body['orderId']
             data['orderid'] = orderid
-            data['checi'] = ticket[0]['trainCode']
             return data
         else:
             raise Exception('generate order faild.\n%s' % resp.text)

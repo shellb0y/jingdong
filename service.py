@@ -123,9 +123,9 @@ def place_order():
 
                     logger.info('erpOrderId %s,callback start...' % order_details['erpOrderId'])
                     resp = requests.get(
-                        'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&jdorder_id=%s&success=true&order_no=%s&amount=%s&order_src=app&checi=%s&cookie=%s' % (
+                        'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&jdorder_id=%s&success=true&order_no=%s&amount=%s&order_src=app&checi=%s&seatTyp=%s&cookie=%s' % (
                             partner_order_id, order_details['erpOrderId'], order_data['orderid'],
-                            order_details['onlinePayFee'], order_data['cheCi'],pc_cookie))
+                            order_details['onlinePayFee'], order_data['cheCi'],order_data['seatType'],pc_cookie))
                     logger.info(resp.text)
                     # logger.info('get pc cookie')
 
