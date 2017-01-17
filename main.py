@@ -3,6 +3,10 @@ import sys
 import service
 import phone_charge_sevice
 
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == '-s':
