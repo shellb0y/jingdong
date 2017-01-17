@@ -46,7 +46,7 @@ def place_order():
                 continue
 
             train = json.loads(train['data'])
-            username = train['data']['exData2']['user']
+            username = train['data']['exData2']['user'].encode('utf-8')
             password = train['data']['exData2']['pwd']
             logger.info('get orderid:%s,username:%s,password:%s,logon...' % (partner_order_id, username, password))
 
