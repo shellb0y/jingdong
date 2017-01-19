@@ -12,7 +12,7 @@ import urllib
 import auth
 import redis
 
-PLACEORDERINTERVAL = 20
+PLACEORDERINTERVAL = 1
 # FAILDWAITING = 180
 
 adsl_service = adsl.Adsl({"name": u"宽带连接".encode('gbk'),
@@ -77,10 +77,11 @@ def place_order():
                 couponPrice = train['data']['exData2']['couponPrice']
                 logger.info('get couponPrice %s' % couponPrice)
 
-            logger.info('find out couponid')
-            if not login.get_couponList(cookie, couponid):
-                logger.info('faild')
-                raise Exception(u'没有找到优惠卷,%s' % couponid)
+            if couponid:
+                logger.info('find out couponid')
+                if not login.get_couponList(cookie, couponid):
+                    logger.info('faild')
+                    raise Exception(u'没有找到优惠卷,%s' % couponid)
 
             order = http_handler.order.Order(uuid, user_agent, h5_cookie)
             passengers = train['data']['passengersInfo']
@@ -95,11 +96,12 @@ def place_order():
             logger.info('order token success,%s' % order_data['token'])
 
             if not (couponid and couponPrice):
-                order_data['couponid'] = ''
-                order_data['couponPrice'] = ''
+                order_data['coupon'] = '&isGrab=false&payTypes=&couponIds=&couponFee=0'
             else:
-                order_data['couponid'] = couponid
-                order_data['couponPrice'] = int(float(couponPrice) * 100)
+                order_data['coupon'] = '&payTypes=allDCoupon&couponIds=%s&couponFee=%s' % (
+                str(couponid), str(int(float(couponPrice) * 100)))
+                # order_data['couponid'] = couponid
+                # order_data['couponPrice'] = int(float(couponPrice) * 100)
 
             logger.info('submit:%s' % json.dumps(order_data))
             if order.submit(order_data):
@@ -107,25 +109,26 @@ def place_order():
                 order_details = order.get_details(order_data['orderid'])
                 if order_details:
                     logger.info('get pc cookie')
-                    pc_cookie=''
+                    pc_cookie = ''
                     try:
                         resp = requests.get(
-                            'http://115.29.79.63:9000/api/Cookie/Get?username=%s&password=%s' % (username, password),timeout=10)
-                        data=resp.json()
+                            'http://115.29.79.63:9000/api/Cookie/Get?username=%s&password=%s' % (username, password),
+                            timeout=10)
+                        data = resp.json()
                         if data['Status']:
-                            pc_cookie=data['Cookie']
+                            pc_cookie = data['Cookie']
                         else:
                             logger.error(data['Message'])
                     except requests.exceptions.ReadTimeout:
                         logger.error('timeout')
-                    except Exception,e:
+                    except Exception, e:
                         logger.error(e.message)
 
                     logger.info('erpOrderId %s,callback start...' % order_details['erpOrderId'])
                     resp = requests.get(
                         'http://op.yikao666.cn/JDTrainOpen/CallBackForMJD?order_id=%s&jdorder_id=%s&success=true&order_no=%s&amount=%s&order_src=app&checi=%s&seatTyp=%s&cookie=%s' % (
                             partner_order_id, order_details['erpOrderId'], order_data['orderid'],
-                            order_details['onlinePayFee'], order_data['cheCi'],order_data['seatType'],pc_cookie))
+                            order_details['onlinePayFee'], order_data['cheCi'], order_data['seatType'], pc_cookie))
                     logger.info(resp.text)
                     # logger.info('get pc cookie')
 

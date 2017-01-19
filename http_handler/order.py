@@ -123,8 +123,8 @@ class Order:
 
     def submit(self, data):
         url = 'https://train.m.jd.com/bookSeat/submitOrder.action'
-        data = 'token=%s&token2=%s&orderId=%s&totalFee=%d&pwd=&payTypes=allDCoupon&couponIds=%s&couponFee=%s' % (
-            data['token'], data['token'], data['orderid'], data['seatPrice'], data['couponid'], data['couponPrice'])
+        data = 'token=%s&token2=%s&orderId=%s&totalFee=%d&pwd=%s' % (
+            data['token'], data['token'], data['orderid'], data['seatPrice'], data['coupon'])
 
         logger.debug('POST %s\n%s' % (url, data))
         req = requests.post(url, data=data, headers=self.headers, verify=False)
