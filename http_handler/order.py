@@ -68,9 +68,7 @@ class Order:
         else:
             raise Exception('find out ticket faild')
 
-        data = {'account': '', 'trainDate': str(
-            time.mktime(
-                time.strptime(train['data']['ticketsInfo'][0]['dptDate'], "%Y-%m-%d"))).replace('.', '') + '00',
+        data = {'account': '', 'trainDate': train['data']['ticketsInfo'][0]['dptDate'],
                 'toStationCode': train['data']['ticketsInfo'][0]['arrStation'],
                 'toStationName': train['data']['ticketsInfo'][0]['destination'].encode("utf-8"), 'seatType': ticket[2],
                 'realBook': '1',
@@ -156,9 +154,7 @@ class Order:
     def seach_ticket(self, train):
         url = 'http://train.m.jd.com/ticket/searchTickets.json'
         data = {  # 'ticketRequest.trainCode': train['data']['ticketsInfo'][0]['coachNo'],
-            'ticketRequest.trainDate': str(
-                time.mktime(
-                    time.strptime(train['data']['ticketsInfo'][0]['dptDate'], "%Y-%m-%d"))).replace('.', '') + '00',
+            'ticketRequest.trainDate': train['data']['ticketsInfo'][0]['dptDate'],
             'ticketRequest.fromStation': train['data']['ticketsInfo'][0]['dptStation'],
             'ticketRequest.toStation': train['data']['ticketsInfo'][0]['arrStation'],
             'ticketRequest.fromStationName': train['data']['ticketsInfo'][0]['departure'].encode("utf-8"),
